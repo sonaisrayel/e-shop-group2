@@ -1,0 +1,23 @@
+{
+  "name": "e-shop",
+  "version": "1.0.0",
+  "description": "E-shop api ",
+  "main": "/src/index.js",
+
+  "type": "module",
+  "scripts": {
+    "start": "node src/index.js",
+    "test": "echo \"Error: no test specified\" && exit 1"
+  },
+  "author": "Agbu students group-1",
+  "license": "ISC",
+  "dependencies": {
+    "express": "^4.18.3",
+    "jsonwebtoken": "^9.0.2",
+    "mongoose": "^8.2.0"
+  },
+  "devDependencies": {
+    "dotenv": "^16.4.5",
+    "nodemon": "^3.1.0"
+  }
+}
