@@ -1,4 +1,5 @@
 import { User } from '../models/user-model';
+import CryptoLib from '../libs/crypto-lib';
 
 export const registration = async (req, res) => {
     try {
@@ -15,8 +16,10 @@ export const registration = async (req, res) => {
             throw new Error("Passwords doesn't match!")
         };
 
+        const passwordHash = await CryptoLib.makeHash(password);
+
         const newUser = new User({
-            name, surname, username, password, email, userType
+            name, surname, username, password:passwordHash, email, userType
         });
 
         await newUser.save();
