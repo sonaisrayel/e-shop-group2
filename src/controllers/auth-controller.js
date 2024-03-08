@@ -1,6 +1,7 @@
 import { User } from '../models/user-model';
-import CryptoLib from '../libs/crypto-lib';
 
+import CryptoLib from '../libs/crypto-lib';
+import JWTLib from '../libs/jwt-lib';
 
 export const registration = async (req, res) => {
     try {
@@ -29,6 +30,29 @@ export const registration = async (req, res) => {
 
         res.status(201).send({data: user});
     } catch (e) {
-        res.status(404).send("Failed to registrate!")
+        res.status(404).send({message: "Failed to registrate!"})
+    }
+}
+
+export const login = async (req, res) => {
+    try {
+        const { email, password } = req.body;
+
+        const userInfo = await User.find({email});
+
+        const [userParams] = userInfo;
+
+        const user = await CryptoLib.compare(password, userParams);
+
+        if(!user){
+            throw new Error("You are not registered!")
+        }
+
+        const token = await JWTLib.signUserToken({id: userParams.id, email: userParams.email})
+
+        res.status(201).send({data: {username: userParams.username, email: userParams.email}, token})
+
+    } catch (e) {
+        res.status(404).send({message: "Failed to login!"})
     }
 }

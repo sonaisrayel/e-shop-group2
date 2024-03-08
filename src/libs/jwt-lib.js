@@ -10,4 +10,4 @@ const verifyUserToken = async (token) => {
     return JWT.verify(token, SECRET);
 };
 
-export default { signUserToken, verifyUserToken}
+export default { signUserToken, verifyUserToken }
