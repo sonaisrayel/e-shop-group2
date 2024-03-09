@@ -1,18 +1,12 @@
-import { User } from '../models/user-model';
+import { User } from '../models/user-model.js';
 
-import CryptoLib from '../libs/crypto-lib';
-import JWTLib from '../libs/jwt-lib';
+import CryptoLib from '../libs/crypto-lib.js';
+import JWTLib from '../libs/jwt-lib.js';
 
 export const registration = async (req, res) => {
     try {
-        const {
-            name, 
-            surname, 
-            username, 
-            password, 
-            repeatPassword, 
-            email, 
-            userType } = req.body;
+        const { name, surname, username, password, repeatPassword, email, userType } = req.body;
+          
 
         if (password !== repeatPassword){
             throw new Error("Passwords doesn't match!")
@@ -30,7 +24,7 @@ export const registration = async (req, res) => {
 
         res.status(201).send({data: user});
     } catch (e) {
-        res.status(404).send({message: "Failed to registrate!"})
+        res.status(404).send({data: e.message})
     }
 }
 
