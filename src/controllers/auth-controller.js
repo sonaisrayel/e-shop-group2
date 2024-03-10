@@ -1,5 +1,5 @@
-import { User } from '../models/user-model';
-import CryptoLib from '../libs/crypto-lib';
+import { User } from '../models/user-model.js';
+import CryptoLib from '../libs/crypto-lib.js';
 
 
 export const registration = async (req, res) => {
