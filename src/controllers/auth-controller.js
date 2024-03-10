@@ -25,6 +25,6 @@ export const registration = async (req, res) => {
 
         res.status(201).send({data: user});
     } catch (e) {
-        res.status(404).send("Failed to registrate!")
+        res.status(404).send({message: e.message})
     }
 }
