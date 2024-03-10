@@ -24,7 +24,7 @@ export const registration = async (req, res) => {
 
         res.status(201).send({data: user});
     } catch (e) {
-        res.status(404).send({data: e.message})
+        res.status(404).send({message: e.message})
     }
 }
 
@@ -47,6 +47,6 @@ export const login = async (req, res) => {
         res.status(201).send({data: {username: userParams.username, email: userParams.email}, token})
 
     } catch (e) {
-        res.status(404).send({message: "Failed to login!"})
+        res.status(404).send({message: e.message})
     }
 }
