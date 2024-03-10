@@ -3,10 +3,10 @@
   "version": "1.0.0",
   "description": "E-shop api ",
   "main": "/src/index.js",
-
   "type": "module",
   "scripts": {
     "start": "node src/index.js",
+    "dev": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
   "author": "Agbu students group-1",
