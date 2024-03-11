@@ -9,12 +9,14 @@
     "dev": "nodemon src/index.js",
     "test": "echo \"Error: no test specified\" && exit 1"
   },
-  "author": "Agbu students group-1",
+  "author": "Agbu students group-2",
   "license": "ISC",
   "dependencies": {
+    "bcrypt": "^5.1.1",
     "express": "^4.18.3",
     "jsonwebtoken": "^9.0.2",
-    "mongoose": "^8.2.0"
+    "mongoose": "^8.2.1"
+    
   },
   "devDependencies": {
     "dotenv": "^16.4.5",
