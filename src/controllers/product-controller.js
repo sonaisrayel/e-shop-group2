@@ -65,7 +65,7 @@ export const updateProduct = async (req, res) => {
         const ownerData = await User.findById(owner.id);
 
         if (ownerData.userType !== "seller") {
-            throw new Error('For creating product, you must be a seller')
+            throw new Error('For updating product, you must be a seller')
         }
 
         const { id } = req.params;
@@ -74,6 +74,27 @@ export const updateProduct = async (req, res) => {
         const updatedProduct = await Product.findOneAndUpdate({ _id: id }, payload, { new: true });
 
         res.status(201).send({ data: updatedProduct })
+
+    } catch (error) {
+        res.status(404).send({ "message": error.message })
+    }
+}
+
+export const deleteProduct = async (req, res) => {
+    try {
+        const { authorization } = req.headers;
+        const owner = await JWTLib.verifyUserToken(authorization);
+        const ownerData = await User.findById(owner.id);
+
+        if (ownerData.userType !== "seller") {
+            throw new Error('For deleting product, you must be a seller')
+        }
+
+        const { id } = req.params;
+    
+        const deletedProduct = await Product.findOneAndDelete({ _id: id });
+
+        res.status(201).send({ data: deletedProduct })
 
     } catch (error) {
         res.status(404).send({ "message": error.message })
