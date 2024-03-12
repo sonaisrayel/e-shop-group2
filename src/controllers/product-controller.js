@@ -57,3 +57,25 @@ export const createProduct = async (req, res) => {
         res.status(404).send({ "message": error.message })
     }
 }
+
+export const updateProduct = async (req, res) => {
+    try {
+        const { authorization } = req.headers;
+        const owner = await JWTLib.verifyUserToken(authorization);
+        const ownerData = await User.findById(owner.id);
+
+        if (ownerData.userType !== "seller") {
+            throw new Error('For creating product, you must be a seller')
+        }
+
+        const { id } = req.params;
+        const payload = req.body;
+    
+        const updatedProduct = await Product.findOneAndUpdate({ _id: id }, payload, { new: true });
+
+        res.status(201).send({ data: updatedProduct })
+
+    } catch (error) {
+        res.status(404).send({ "message": error.message })
+    }
+}
