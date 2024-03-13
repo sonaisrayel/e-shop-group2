@@ -2,6 +2,7 @@ import 'dotenv/config';
 
 import express from 'express';
 const app = express();
+app.use(express.json());
 
 
 import { connection } from './storages/db.js';
