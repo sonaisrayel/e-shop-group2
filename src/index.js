@@ -4,6 +4,7 @@ import express from 'express';
 const app = express();
 app.use(express.json());
 
+
 import { connection } from './storages/db.js';
 const { PORT } = process.env;
 
@@ -18,6 +19,8 @@ import ordersRouter from '../src/routes/order-router.js';
 import productsRouter from '../src/routes/product-router.js';
 import usersRouter from '../src/routes/user-router.js';
 import authRouter from '../src/routes/auth-router.js';
+
+app.use(express.json());
 
 app.use('/category', categoriesRouter);
 app.use('/bucket', bucketsRouter);

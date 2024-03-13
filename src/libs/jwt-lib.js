@@ -3,11 +3,11 @@ const { SECRET } = process.env;
 
 const signUserToken = async (payload) => {
     const { id, email } = payload;
-    return JWT.sign({ id, email }, SECRET, {expiresIn: '15m'});
+    return JWT.sign({ id, email }, SECRET, {expiresIn: '15d'});
 };
 
 const verifyUserToken = async (token) => {
     return JWT.verify(token, SECRET);
 };
 
-export default { signUserToken, verifyUserToken}
+export default { signUserToken, verifyUserToken }
