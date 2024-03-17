@@ -42,7 +42,7 @@ export const login = async (req, res) => {
             throw new Error("You are not registered!")
         }
 
-        const token = await JWTLib.signUserToken({id: userParams.id, email: userParams.email})
+        const token = await JWTLib.signUserToken({id: userParams.id, email: userParams.email, role: userParams.role})
 
         res.status(201).send({user: {username: userParams.username, email: userParams.email}, token})
 

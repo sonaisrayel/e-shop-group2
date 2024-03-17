@@ -6,7 +6,7 @@ app.use(express.json());
 
 
 import { connection } from './storages/db.js';
-import { Authorize } from './middlewars/auth-middleware.js';
+import Authorize from './middlewars/auth-middleware.js';
 const { PORT } = process.env;
 
 connection();
@@ -25,12 +25,14 @@ app.use(express.json());
 app.use('/auth', authRouter);
 app.use('/category', categoriesRouter);
 
+
 app.use(Authorize.authorized);
+app.use('/products', productsRouter);
 
 app.use('/bucket', bucketsRouter);
 app.use('/favorites', favoritesRouter);
 app.use('/orders', ordersRouter);
-app.use('/products', productsRouter);
+
 app.use('/users', usersRouter);
 
 
