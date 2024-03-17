@@ -1,6 +1,4 @@
 import { Product } from '../models/product-model.js';
-import { User } from '../models/user-model.js';
-import JWTLib from '../libs/jwt-lib.js'
 import moment from 'moment';
 
 export const getProducts = async (req, res) => {
@@ -29,21 +27,18 @@ export const getProduct = async (req, res) => {
     } catch (error) {
         res.status(404).send({ "message": error.message });
     }
-
-    // res.status(200).send({product: product});   res.status(200).send({product});
-
-
 }
 
 export const createProduct = async (req, res) => {
     try {
 
-        const { authorization } = req.headers;
-
+        const { userInfo } = req;
         const { name, category, description, price, quantity } = req.body;
-        const owner = await JWTLib.verifyUserToken(authorization);
 
-        if (owner.role !== "seller") {
+        if (!userInfo) {
+            throw new Error('You are not authorized!!!');
+        }
+        if (userInfo.role !== "seller") {
             throw new Error('For creating product, you must be a seller');
         }
 
@@ -54,7 +49,7 @@ export const createProduct = async (req, res) => {
             description,
             price,
             quantity,
-            ownerId: owner.id,
+            ownerId: userInfo.id,
             createdAt,
             updatedAt: createdAt
         });
@@ -68,16 +63,18 @@ export const createProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
     try {
-        const { authorization } = req.headers;
-        const owner = await JWTLib.verifyUserToken(authorization);
 
-        if (owner.role !== "seller") {
-            throw new Error('For updating product, you must be a seller')
-        }
-
-        const { id } = req.params;
+        const { userInfo } = req;
         const payload = req.body;
-    
+        const { id } = req.params;
+
+        if (!userInfo) {
+            throw new Error('You are not authorized!!!');
+        }
+        if (userInfo.role !== "seller") {
+            throw new Error('For updating product, you must be a seller');
+        }
+         
         const updatedProduct = await Product.findOneAndUpdate({ _id: id }, payload, { new: true });
 
         res.status(201).send({updatedProduct})
@@ -89,16 +86,15 @@ export const updateProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
     try {
-        const { authorization } = req.headers;
-        const owner = await JWTLib.verifyUserToken(authorization);
-        console.log(owner);
-
-        if (owner.role !== "seller") {
-            throw new Error('For deleting product, you must be a seller')
-        }
-
+        const { userInfo } = req;
         const { id } = req.params;
-    
+
+        if (!userInfo) {
+            throw new Error('You are not authorized!!!');
+        }
+        if (userInfo.role !== "seller") {
+            throw new Error('For deleting product, you must be a seller');
+        }
         const deletedProduct = await Product.findOneAndDelete({ _id: id });
 
         res.status(201).send({deletedProduct})
