@@ -28,12 +28,13 @@ app.use('/category', categoriesRouter);
 app.use('/products', productsRouter);
 app.use(Authorize.authorized);
 
+app.use('/users', usersRouter);
 
 app.use('/bucket', bucketsRouter);
 app.use('/favorites', favoritesRouter);
 app.use('/orders', ordersRouter);
 
-app.use('/users', usersRouter);
+
 
 
 
