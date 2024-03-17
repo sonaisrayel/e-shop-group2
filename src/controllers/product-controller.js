@@ -3,7 +3,10 @@ import moment from 'moment';
 
 export const getProducts = async (req, res) => {
     try {
-        const products = await Product.find({});
+        const {limit, skip} = req.query
+        console.log(limit);
+        const products = await Product.find({}).limit(limit).skip(skip);
+        
         if (!products.length) {
             throw new Error('Products not found!');            
         }

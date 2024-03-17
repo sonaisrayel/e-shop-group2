@@ -7,7 +7,10 @@
   "scripts": {
     "start": "node src/index.js",
     "dev": "nodemon src/index.js",
-    "test": "echo \"Error: no test specified\" && exit 1"
+    "test": "echo \"Error: no test specified\" && exit 1",
+    "prettier": "prettier '**/*.{js,json,yml}' --write",
+    "lint": "eslint -c .eslintrc --ext .js .",
+    "lint:fix": "npm run lint -- --fix"
   },
   "author": "Agbu students group-2",
   "license": "ISC",
@@ -20,6 +23,10 @@
   },
   "devDependencies": {
     "dotenv": "^16.4.5",
-    "nodemon": "^3.1.0"
+    "eslint": "^8.57.0",
+    "eslint-config-prettier": "^9.1.0",
+    "eslint-plugin-prettier": "^5.1.3",
+    "nodemon": "^3.1.0",
+    "prettier": "^3.2.5"
   }
 }
