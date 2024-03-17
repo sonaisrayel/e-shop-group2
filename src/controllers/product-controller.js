@@ -6,22 +6,33 @@ import moment from 'moment';
 export const getProducts = async (req, res) => {
     try {
         const products = await Product.find({});
-        return res.status(200).send(products);
+        if (!products.length) {
+            throw new Error('Products not found!');            
+        }
+        res.status(200).send({products});
 
     } catch (error) {
-        return ("message", error.message)
+        res.status(404).send({ "message": error.message });
     }
 }
 
 export const getProduct = async (req, res) => {
     try {
         const { id } = req.params;
-        const product = await Product.find({ _id: id });
-        return res.status(200).send(product);
+        const product = await Product.findOne({ _id: id });
+    
+        if (!product) {
+            throw new Error("Product not found!");            
+        }
+        res.status(200).send({product});
 
     } catch (error) {
-        return ("message", error.message)
+        res.status(404).send({ "message": error.message });
     }
+
+    // res.status(200).send({product: product});   res.status(200).send({product});
+
+
 }
 
 export const createProduct = async (req, res) => {
@@ -32,14 +43,11 @@ export const createProduct = async (req, res) => {
         const { name, category, description, price, quantity } = req.body;
         const owner = await JWTLib.verifyUserToken(authorization);
 
-        const ownerData = await User.findById(owner.id);
-
-        if (ownerData.userType !== "seller") {
-            throw new Error('For creating product, you must be a seller')
+        if (owner.role !== "seller") {
+            throw new Error('For creating product, you must be a seller');
         }
 
         const createdAt = moment()
-        console.log(createdAt)
         const createdProduct = await Product.create({
             name,
             category,
@@ -51,7 +59,7 @@ export const createProduct = async (req, res) => {
             updatedAt: createdAt
         });
 
-        res.status(201).send({ data: createdProduct })
+        res.status(201).send({createdProduct})
 
     } catch (error) {
         res.status(404).send({ "message": error.message })
@@ -62,9 +70,8 @@ export const updateProduct = async (req, res) => {
     try {
         const { authorization } = req.headers;
         const owner = await JWTLib.verifyUserToken(authorization);
-        const ownerData = await User.findById(owner.id);
 
-        if (ownerData.userType !== "seller") {
+        if (owner.role !== "seller") {
             throw new Error('For updating product, you must be a seller')
         }
 
@@ -73,7 +80,7 @@ export const updateProduct = async (req, res) => {
     
         const updatedProduct = await Product.findOneAndUpdate({ _id: id }, payload, { new: true });
 
-        res.status(201).send({ data: updatedProduct })
+        res.status(201).send({updatedProduct})
 
     } catch (error) {
         res.status(404).send({ "message": error.message })
@@ -84,9 +91,9 @@ export const deleteProduct = async (req, res) => {
     try {
         const { authorization } = req.headers;
         const owner = await JWTLib.verifyUserToken(authorization);
-        const ownerData = await User.findById(owner.id);
+        console.log(owner);
 
-        if (ownerData.userType !== "seller") {
+        if (owner.role !== "seller") {
             throw new Error('For deleting product, you must be a seller')
         }
 
@@ -94,7 +101,7 @@ export const deleteProduct = async (req, res) => {
     
         const deletedProduct = await Product.findOneAndDelete({ _id: id });
 
-        res.status(201).send({ data: deletedProduct })
+        res.status(201).send({deletedProduct})
 
     } catch (error) {
         res.status(404).send({ "message": error.message })
