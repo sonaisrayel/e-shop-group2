@@ -10,4 +10,8 @@ const verifyUserToken = async (token) => {
     return JWT.verify(token, SECRET);
 };
 
-export default { signUserToken, verifyUserToken }
+const signAdminToken = async (payload) => {
+    return JWT.sign({payload}, SECRET, {expiresIn: '15d'})
+}
+
+export default { signUserToken, verifyUserToken, signAdminToken}

@@ -11,6 +11,7 @@ const { PORT } = process.env;
 
 connection();
 
+import adminRouter from '../src/routes/admin-router.js';
 import authRouter from '../src/routes/auth-router.js';
 import categoriesRouter from '../src/routes/category-router.js';
 import bucketsRouter from '../src/routes/bucket-router.js';
@@ -21,6 +22,8 @@ import usersRouter from '../src/routes/user-router.js';
 
 
 app.use(express.json());
+
+app.use('/admin', adminRouter);
 
 app.use('/auth', authRouter);
 app.use('/category', categoriesRouter);
