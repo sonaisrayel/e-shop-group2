@@ -24,11 +24,13 @@ app.use(express.json());
 
 app.use('/auth', authRouter);
 app.use('/category', categoriesRouter);
-
 app.use('/products', productsRouter);
+app.use('/users', usersRouter);
+
 app.use(Authorize.authorized);
 
 app.use('/users', usersRouter);
+
 
 app.use('/bucket', bucketsRouter);
 app.use('/favorites', favoritesRouter);
