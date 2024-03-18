@@ -14,7 +14,7 @@ connection();
 import authRouter from '../src/routes/auth-router.js';
 import categoriesRouter from '../src/routes/category-router.js';
 import bucketsRouter from '../src/routes/bucket-router.js';
-import favoritesRouter from '../src/routes/favorites-router.js';
+import favouritesRouter from './routes/favourites-router.js';
 import ordersRouter from '../src/routes/order-router.js';
 import productsRouter from '../src/routes/product-router.js';
 import usersRouter from '../src/routes/user-router.js';
@@ -30,7 +30,7 @@ app.use('/users', usersRouter);
 app.use(Authorize.authorized);
 
 app.use('/bucket', bucketsRouter);
-app.use('/favorites', favoritesRouter);
+app.use('/favourites', favouritesRouter);
 app.use('/orders', ordersRouter);
 
 
