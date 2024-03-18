@@ -29,6 +29,7 @@ app.use('/users', usersRouter);
 
 app.use(Authorize.authorized);
 
+app.use('/users', usersRouter);
 
 
 app.use('/bucket', bucketsRouter);
