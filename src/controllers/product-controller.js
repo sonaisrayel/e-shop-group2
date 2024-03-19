@@ -1,7 +1,7 @@
 import { Product } from '../models/product-model.js';
 import { User } from '../models/user-model.js';
 import JWTLib from '../libs/jwt-lib.js'
-import moment from 'moment';
+// import moment from 'moment';
 
 export const getProducts = async (req, res) => {
     try {
