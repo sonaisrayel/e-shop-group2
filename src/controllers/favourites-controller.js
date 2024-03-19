@@ -3,7 +3,7 @@ import { Favourites } from '../models/favourites-model.js';
 
 export const createFavourite = async (req, res) => {
     try {
-        const { userInfo } = req;
+        const { userInfo } = req;g
         const { productId } = req.body;
                
         const product = await Product.findById(productId);
