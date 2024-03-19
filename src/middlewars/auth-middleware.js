@@ -7,7 +7,7 @@ export default class Authorize {
             req.userInfo = await JWTLib.verifyUserToken(authorization);
             next();
         } catch (e) {
-            return next(e.message)
+            return res.status(401).json({ error: e.message });
         }
     }
 }

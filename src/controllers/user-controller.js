@@ -6,10 +6,6 @@ export const getUsers = async (req, res) => {
         const {limit, skip} = req.query
         const { userInfo } = req;
 
-        if (!userInfo) {
-            throw new Error('You are not authorized!!!');
-        }
-
         if (userInfo.role !== "admin") {
             throw new Error('For see all users you must be an admin');
         }

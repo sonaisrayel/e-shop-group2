@@ -38,9 +38,6 @@ export const createProduct = async (req, res) => {
         const { userInfo } = req;
         const { name, category, description, price, quantity } = req.body;
 
-        if (!userInfo) {
-            throw new Error('You are not authorized!!!');
-        }
         if (userInfo.role !== "seller") {
             throw new Error('For creating product, you must be a seller');
         }
@@ -71,9 +68,6 @@ export const updateProduct = async (req, res) => {
         const payload = req.body;
         const { id } = req.params;
 
-        if (!userInfo) {
-            throw new Error('You are not authorized!!!');
-        }
         if (userInfo.role !== "seller") {
             throw new Error('For updating product, you must be a seller');
         }
@@ -92,9 +86,6 @@ export const deleteProduct = async (req, res) => {
         const { userInfo } = req;
         const { id } = req.params;
 
-        if (!userInfo) {
-            throw new Error('You are not authorized!!!');
-        }
         if (userInfo.role !== "seller") {
             throw new Error('For deleting product, you must be a seller');
         }
