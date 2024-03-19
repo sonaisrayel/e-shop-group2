@@ -5,13 +5,13 @@ const Schema = mongoose.Schema;
 const favSchema = new Schema({
 
   product: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'Product',
     required: true
   },
 
   userId: {
-    type: mongoose.Schema.Types.ObjectId,
+    type: Schema.Types.ObjectId,
     ref: 'User',
     required: true
   },
