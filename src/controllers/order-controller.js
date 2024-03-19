@@ -1,42 +1,44 @@
 import { Order } from "../models/order-model.js";
-
 import { Product } from "../models/product-model.js";
+import { User } from "../models/user-model.js";
 
 
 export const createOrder = async (req, res) => {
 
  try {
         
-        const { productName, quantity, address, paymentMethod } = req.body;
+        const { userId, productId, quantity, address, paymentMethod } = req.body;
 
         if (!Order) {
             return res.status(400).send({ error: 'Missing required fields' });
         }
 
-               const product = await Product.findOne({ name: productName });
-               
+            const product = await Product.findOne({_id:productId});
+            const userinfo = await User.findOne({_id:  userId});
+
+            console.log(userinfo);
         if (!product) {
             return res.status(404).send({ error: 'Product not found' });
         }
 
         const totalPrice = product.price * quantity;
 
-        const order = {
-            productName: productName,
+        const newOrder = new Order ({
+            userId: userinfo._id,
+            productName: product.name,
             price: product.price,
             quantity: quantity,
             address: address,
             paymentMethod: paymentMethod,
             totalPrice: totalPrice
-        };
+        });
+
+        const order = await newOrder.save()
        
-        return res.status(200).send(order);
+        res.status(200).send({order,  massage: "Your order is placed successfully" });
         
     } catch (error) {
         
-        return res.status(404).send({ error: 'Error processing order:' });
-
-       
+       res.status(404).send({ error: 'Error processing order:' });
     }
 }
-

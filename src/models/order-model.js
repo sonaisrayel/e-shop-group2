@@ -3,6 +3,10 @@ import mongoose from 'mongoose';
 const Schema = mongoose.Schema;
 
 const orderSchema = new Schema({
+    userId: {
+        type: String,
+        required: true,
+    },
     productName: {
         type: String,
         required: true,
@@ -23,7 +27,13 @@ const orderSchema = new Schema({
         type: String,
         required: true
     },
+    totalPrice: {
+        type: Number,
+        required:true 
+    }
+   
 });
+
 
 const Order = mongoose.model('Order', orderSchema);
 export { Order };
