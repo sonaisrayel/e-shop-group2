@@ -38,3 +38,15 @@ export const getUserProducts = async (req, res) => {
         res.status(404).send({ "message": error.message });
     }
 }
+
+export const deleteUser = async (req, res) => {
+    try {
+        const { id } = req.params;
+        const deletedUser = await User.deleteOne({ id: id })
+
+        res.status(200).send({ message: "User successfully deleted", user: deletedUser })
+    } catch (e) {
+        res.status(404).send({ message: e.message })
+    }
+
+}
