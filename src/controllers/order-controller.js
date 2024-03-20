@@ -60,6 +60,7 @@ export const getUserOrders = async (req, res) => {
 
 }
 
+
 export const getOwnerOrders = async (req, res) => {
 
     try {
@@ -76,23 +77,40 @@ export const getOwnerOrders = async (req, res) => {
 
 }
 
+
 export const getOrders = async (req, res) => {
+    try {
+        const orders = await Order.find({});
 
-    // const { id } =req.params
+        res.status(200).send(orders)
+    } catch (error) {
 
-    const userOrders = await Order.find({});
+        res.status(404).send({ error: 'Something went wrong' });
+    }
 
-    res.status(200).send(userOrders)
 }
 
 
-// export const getOrders1 = async (req, res) => {
 
-//     const { userId } =req.params
+export const deleteOrder = async (req, res) => {
 
-//     const userOrders = await Order.find({userId: req.userId});
+    try {
+        const { id } = req.query
 
-//     res.status(200).send(userOrders)
-// }
+        const { orderId } = req.body
+        const order = await Order.find({ _id: orderId });
 
+        if (order.userId !== id) {
+            res.status(404).send({ error: 'Forbidden: You are not allowed to delete this order' });
+        }
 
+        const deleted = await Order.deleteOne({ _id: orderId });
+
+        res.status(200).send({ deleted, message: 'Order deleted successfully' });
+
+    } catch (error) {
+
+        res.status(404).send({ error: 'Something went wrong' });
+    }
+
+}
