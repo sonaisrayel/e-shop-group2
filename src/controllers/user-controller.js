@@ -42,3 +42,15 @@ export const getUserProducts = async (req, res) => {
         res.status(404).send({ "message": error.message });
     }
 }
+
+export const updateUser = async (req, res) => {
+    try {
+        const {id} = req.params;
+        const updatedData = req.body;
+        const updatedUser = await User.findOneAndUpdate({id: id}, {updatedData: updatedData}, {new: true})
+        res.status(404).send({message: "User updated", user: updatedUser})
+
+    } catch (e) {
+        res.status(404).send({message: e.message})
+    }
+}
