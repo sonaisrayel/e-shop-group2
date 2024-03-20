@@ -60,6 +60,18 @@ export const getUserOrders = async (req, res) => {
 
 }
 
+export const getUserOrder = async (req, res) => {
+    try {
+        const {id}  = req.params
+        const userOrder = await Order.findOne({ _id: id });
+        res.status(200).send(userOrder)
+    } catch (error) {
+        res.status(404).send({ error: 'Something went wrong' });
+    }
+
+}
+
+
 
 export const getOwnerOrders = async (req, res) => {
 
