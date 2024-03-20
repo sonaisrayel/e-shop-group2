@@ -3,7 +3,7 @@ import { Favourites } from '../models/favourites-model.js';
 
 export const createFavourite = async (req, res) => {
     try {
-        const { userInfo } = req;g
+        const { userInfo } = req;
         const { productId } = req.body;
                
         const product = await Product.findById(productId);
@@ -26,6 +26,20 @@ export const getFavourites = async (req, res) => {
             throw new Error('Favourites not found!');            
         }
         res.status(200).send({favourites});
+
+    } catch (error) {
+        res.status(404).send({ "message": error.message });
+    }
+}
+
+export const deleteFavourite = async (req, res) => {
+    try {
+        
+        const { userInfo } = req;
+        const { id } = req.params
+        const deletedFavourite = await Favourites.findOneAndDelete({ userId: userInfo.id, product: id });
+            
+        res.status(200).send({favourite : deletedFavourite});
 
     } catch (error) {
         res.status(404).send({ "message": error.message });
