@@ -61,16 +61,16 @@ export const updateUser = async (req, res) => {
 
 export const deleteUser = async (req, res) => {
   try {
-    const { id } = req.userInfo;
+    const { id, role } = req.userInfo;
     const idToDelete = req.params.id;
   
-    if(id !== idToDelete){
-        throw new Error("Failed! You have no permission to delete other user.")
-    }
-    const deletedUser = await User.findOneAndDelete({_id:id});
+    if(role === 'admin' || id === idToDelete)
+    await User.findOneAndDelete({_id:id});
     
-    res.status(200).send({ message: "User successfully deleted!", user: deletedUser });
+    res.status(200).send({ message: "User successfully deleted!"});
   } catch (e) {
     res.status(404).send({ message: e.message });
   }
 };
+
+
