@@ -7,7 +7,7 @@ export const getUsers = async (req, res) => {
     const { userInfo } = req;
 
     if (userInfo.role !== "admin") {
-      throw new Error("For see all users you must be an admin");
+      throw new Error("To see all users you must be an admin");
     }
 
     const [users, total] = await Promise.all([
@@ -61,10 +61,10 @@ export const updateUser = async (req, res) => {
 
 export const deleteUser = async (req, res) => {
   try {
-    const { id, role } = req.userInfo;
+    const { id } = req.userInfo;
     const idToDelete = req.params.id;
   
-    if(role === 'admin' || id === idToDelete)
+    if(id === idToDelete)
     await User.findOneAndDelete({_id:id});
     
     res.status(200).send({ message: "User successfully deleted!"});
