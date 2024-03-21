@@ -21,4 +21,5 @@ export default class Authorize {
       res.status(404).send({ message: e.message });
     }
   }
+  
 }

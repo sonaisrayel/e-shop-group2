@@ -58,3 +58,19 @@ export const updateUser = async (req, res) => {
     res.status(404).send({ message: e.message });
   }
 };
+
+export const deleteUser = async (req, res) => {
+  try {
+    const { id } = req.userInfo;
+    const idToDelete = req.params.id;
+  
+    if(id !== idToDelete){
+        throw new Error("Failed! You have no permission to delete other user.")
+    }
+    const deletedUser = await User.findOneAndDelete({_id:id});
+    
+    res.status(200).send({ message: "User successfully deleted!", user: deletedUser });
+  } catch (e) {
+    res.status(404).send({ message: e.message });
+  }
+};
