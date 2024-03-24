@@ -37,14 +37,9 @@ export const getProduct = async (req, res) => {
 
 export const createProduct = async (req, res) => {
     try {
-
         const { userInfo } = req;
         const { name, category, description, price, quantity } = req.body;
-
-        if (userInfo.role !== "seller") {
-            throw new Error('For creating product, you must be a seller');
-        }
-
+        
         const createdAt = moment()
         const createdProduct = await Product.create({
             name,
@@ -66,17 +61,10 @@ export const createProduct = async (req, res) => {
 
 export const updateProduct = async (req, res) => {
     try {
-
-        const { userInfo } = req;
         const payload = req.body;
         const { id } = req.params;
 
-        if (userInfo.role !== "seller") {
-            throw new Error('For updating product, you must be a seller');
-        }
-         
         const updatedProduct = await Product.findOneAndUpdate({ _id: id }, payload, { new: true });
-
         res.status(201).send({updatedProduct})
 
     } catch (error) {
@@ -86,12 +74,8 @@ export const updateProduct = async (req, res) => {
 
 export const deleteProduct = async (req, res) => {
     try {
-        const { userInfo } = req;
         const { id } = req.params;
 
-        if (userInfo.role !== "seller") {
-            throw new Error('For deleting product, you must be a seller');
-        }
         const deletedProduct = await Product.findOneAndDelete({ _id: id });
 
         res.status(201).send({deletedProduct})
