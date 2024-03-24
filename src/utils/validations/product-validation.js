@@ -9,4 +9,18 @@ export const productValidationSchema = Joi.object({
     ownerId: Joi.string().required(),
     createdAt: Joi.date().default(new Date()),
     updatedAt: Joi.date().default(null)
+
+    // ,
+    // articul: Joi.string().required().custom((value, helpers) => {
+    //     const { name, category, description, price, quantity, ownerId } = helpers.parent;
+    //     const articul = `${name}-${category}-${description}-${price}-${quantity}-${ownerId}`;
+    //     if (!isArticulUnique(articul)) {
+    //         return helpers.error('any.custom');
+    //     }
+    //     return articul;
+    // }).messages({
+    //     'any.required': 'The articul is required.',
+    //     'string.empty': 'The articul must not be empty.',
+    //     'any.custom': 'The articul must be unique and contain all product information.'
+    // })
 })
