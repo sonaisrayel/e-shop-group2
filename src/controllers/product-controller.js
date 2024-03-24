@@ -43,7 +43,7 @@ export const createProduct = async (req, res) => {
 
         const { error } = productValidationSchema.validate(req.body);
         if (error) {
-            return res.status(400).json({ error: error.details[0].message });
+            res.status(400).json({ error: error.details[0].message });
         }
 
         const createdAt = moment()
@@ -71,7 +71,11 @@ export const updateProduct = async (req, res) => {
         const { id } = req.params;
 
         const updatedProduct = await Product.findOneAndUpdate({ _id: id }, payload, { new: true });
-        console.log(updateProduct);
+
+        if (!updatedProduct) {
+            throw new Error ('Product not found or not updated.');
+        }
+        
 
         res.status(201).send({ updatedProduct })
 
@@ -85,6 +89,10 @@ export const deleteProduct = async (req, res) => {
         const { id } = req.params;
 
         const deletedProduct = await Product.findOneAndDelete({ _id: id });
+
+        if (!deletedProduct) {
+            throw new Error ('Product not found or not deleted.');
+        }
 
         res.status(201).send({ deletedProduct })
 
