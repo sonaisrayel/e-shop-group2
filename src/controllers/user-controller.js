@@ -6,10 +6,6 @@ export const getUsers = async (req, res) => {
     const { limit, skip } = req.query;
     const { userInfo } = req;
 
-    if (userInfo.role !== "admin") {
-      throw new Error("For see all users you must be an admin");
-    }
-
     const [users, total] = await Promise.all([
       User.find({}).limit(limit).skip(skip).select("-password"),
       User.countDocuments(),
@@ -56,5 +52,20 @@ export const updateUser = async (req, res) => {
     res.status(404).send({ message: "User updated", user: updatedUser });
   } catch (e) {
     res.status(404).send({ message: e.message });
+  }
+};
+
+export const addUserImage = async (req, res) => {
+  try {
+    const { userInfo } = req;
+
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: userInfo.id },
+      { pictureUrl: req.file.path },
+      { new: true },
+    );
+    res.status(201).send({ message: "Image uploaded", user: updatedUser });
+  } catch (e) {
+    res.status(404).send(e.message);
   }
 };
