@@ -6,10 +6,15 @@ import {
   getUserProducts,
   updateUser,
 } from "../controllers/user-controller.js";
+
 import Authorize from "../middlewars/auth-middleware.js";
 
-router.get("/", Authorize.authorized, Authorize.isAdmin, getUsers);
 router.get("/:id/products", getUserProducts);
-router.patch("/", Authorize.authorized, updateUser);
+
+router.use (Authorize.authorized);
+router.patch("/", updateUser);
+
+router.use (Authorize.isAdmin);
+router.get("/", getUsers);
 
 export default router;
