@@ -1,4 +1,5 @@
 import jwtLib from "../libs/jwt-lib.js";
+import ResponseHandler from "../utils/response-handling.js";
 
 export const adminLogin = async (req, res) => {
     try {
@@ -8,11 +9,11 @@ export const adminLogin = async (req, res) => {
         const { username, password } = req.body;
 
         if(username !== adminUsername & password !== adminPassword){
-            throw new Error("Access denied! You are not admin.")
+            return ResponseHandler.handlePostResponse("Access denied! You are not admin.", res)
         }
         const token = await jwtLib.signAdminToken({role:'admin', username: adminUsername})
-        res.status(201).send({admin: {username: adminUsername}, token})
+        return ResponseHandler.handlePostResponse(res, {admin: {username: adminUsername}, token})
     } catch (e) {
-        res.status(404).send({message: e.message})
+        return ResponseHandler.handleErrorResponse({message: e.message}, res);
     }
 }
