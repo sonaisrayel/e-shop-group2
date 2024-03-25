@@ -28,15 +28,16 @@ export const getUserProducts = async (req, res) => {
 
     const [user] = await User.find({ _id: id });
 
-    if (!user) {
-      throw new Error("This user doesn't exist");
-    }
+      const [userProducts, totalUserProducts] = await Promise.all([
+      Product.find({ ownerId: id }).limit(limit).skip(skip),
+      Product.countDocuments ({ ownerId: id })
+  ])
 
-    const userProducts = await Product.find({ ownerId: id })
-      .limit(limit)
-      .skip(skip);
-
-    res.status(200).send({ userProducts });
+  if (!userProducts.length) {
+      throw new Error('Products not found!');            
+  }
+  
+  res.status(200).send({products: userProducts, total: totalUserProducts});
   } catch (error) {
     res.status(404).send({ message: error.message });
   }
