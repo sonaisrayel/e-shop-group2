@@ -4,12 +4,7 @@ import { Product } from "../models/product-model.js";
 export const getUsers = async (req, res) => {
   try {
     const { limit, skip } = req.query;
-    const { userInfo } = req;
-
-    if (userInfo.role !== "admin") {
-      throw new Error("For see all users you must be an admin");
-    }
-
+  
     const [users, total] = await Promise.all([
       User.find({}).limit(limit).skip(skip).select("-password"),
       User.countDocuments(),
@@ -18,7 +13,7 @@ export const getUsers = async (req, res) => {
     res.status(200).send({ users, total });
   } catch (error) {
     res.status(404).send({ message: error.message });
-  }
+  }-m 
 };
 
 export const getUserProducts = async (req, res) => {
