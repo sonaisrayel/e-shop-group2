@@ -1,5 +1,6 @@
 import { User } from "../models/user-model.js";
-import {userValidationSchema} from '../utils/validations/user-validation.js';
+import { userValidationSchema } from "../utils/validations/user-validation.js";
+import { passwordValidationSchema } from "../utils/validations/password-validation.js";
 
 import CryptoLib from "../libs/crypto-lib.js";
 import JWTLib from "../libs/jwt-lib.js";
@@ -9,11 +10,15 @@ export const registration = async (req, res) => {
     const { name, surname, username, password, repeatPassword, email, role } =
       req.body;
 
-    if (password !== repeatPassword) {
-      throw new Error("Passwords doesn't match!");
-    }
-
-    await userValidationSchema.validateAsync({name, surname, username, password, repeatPassword, email})
+    await passwordValidationSchema.validateAsync({ password, repeatPassword });
+    await userValidationSchema.validateAsync({
+      name,
+      surname,
+      username,
+      password,
+      repeatPassword,
+      email,
+    });
 
     const passwordHash = await CryptoLib.makeHash(password);
 
