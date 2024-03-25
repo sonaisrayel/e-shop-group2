@@ -14,8 +14,11 @@ export default class Authorize {
     try {
       const { authorization } = req.headers;
       const userInfo = await JWTLib.verifyUserToken(authorization);
-      if (userInfo.role === "admin") {
+
+      if (userInfo.payload.role === "admin") {
         next();
+      } else {
+        res.status(403).send({ error: "You are not an admin" })
       }
     } catch (e) {
       res.status(404).send({ message: e.message });
