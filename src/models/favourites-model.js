@@ -2,26 +2,22 @@ import mongoose from 'mongoose';
 
 const Schema = mongoose.Schema;
 
-const favSchema = new Schema({
-
-  product: {
-    type: Schema.Types.ObjectId,
-    ref: 'Product',
-    required: true
-  },
-
+const FavouritesSchema = new Schema({
   userId: {
     type: Schema.Types.ObjectId,
     ref: 'User',
-    required: true
+    // required: true
   },
+  products: [{
+    type: Schema.Types.ObjectId,
+    ref: 'Product',
+    // required: true
+  }],
+},
 
-  addedToFav: {
-    type: Date,
-    default: Date.now
-  }
+  { timestamps: { createdAt: 'cretaedAt', updatedAt: 'updatedAt' } }
 
-});
+)
 
-const Favourites = mongoose.model('Favourites', favSchema);
+const Favourites = mongoose.model('Favourites', FavouritesSchema);
 export { Favourites };
