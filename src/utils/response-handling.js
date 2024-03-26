@@ -19,7 +19,4 @@ export default class ResponseHandler {
         return res.status(202).send(data)
     }
 
-    static handleErrorResponse (err, res) {
-        return res.status(404).send(err.message)
-    }
 }

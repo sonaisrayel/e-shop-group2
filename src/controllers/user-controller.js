@@ -14,7 +14,7 @@ export const getUsers = async (req, res) => {
 
     return ResponseHandler.handleListResponse(res, { users, total });
   } catch (error) {
-    return ResponseHandler.handleErrorResponse({ message: error.message }, res);
+    res.status(404).send({ message: error.message });
   }
 };
 
@@ -26,7 +26,7 @@ export const getUserProducts = async (req, res) => {
     const [user] = await User.find({ _id: id });
 
     if (!user) {
-      return ResponseHandler.handleErrorResponse("This user doesn't exist", res);
+      throw new Error("This user doesn't exist");
     }
 
     const userProducts = await Product.find({ ownerId: id })
@@ -35,7 +35,7 @@ export const getUserProducts = async (req, res) => {
 
     return ResponseHandler.handleListResponse(res, { userProducts });
   } catch (error) {
-    return ResponseHandler.handleErrorResponse({ message: error.message }, res);
+    res.status(404).send({ message: error.message });;
   }
 };
 
@@ -52,7 +52,7 @@ export const updateUser = async (req, res) => {
 
     return ResponseHandler.handleUpdateResponse(res, {user: updatedUser });
   } catch (e) {
-    return ResponseHandler.handleErrorResponse({ message: error.message }, res);
+    res.status(404).send({ message: error.message });;
   }
 };
 
@@ -67,6 +67,6 @@ export const addUserImage = async (req, res) => {
     );
     return ResponseHandler.handleUpdateResponse(res,{ message: "Image uploaded", user: updatedUser });
   } catch (e) {
-    return ResponseHandler.handleErrorResponse({ message: error.message }, res);
+    res.status(404).send({ message: error.message });;
   }
 };
