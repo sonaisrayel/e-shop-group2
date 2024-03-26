@@ -40,7 +40,7 @@ export const getUserProducts = async (req, res, next) => {
 
     return ResponseHandler.handleListResponse(res, { userProducts });
   } catch (error) {
-    next(error.message);;
+    next(error.message);
   }
 };
 
@@ -56,8 +56,8 @@ export const updateUser = async (req, res, next) => {
     );
 
     return ResponseHandler.handleUpdateResponse(res, {user: updatedUser });
-  } catch (e) {
-    next(e.message);;
+  } catch (error) {
+    next(error.message);
   }
 };
 
@@ -71,7 +71,7 @@ export const addUserImage = async (req, res, next) => {
       { new: true },
     );
     return ResponseHandler.handleUpdateResponse(res,{ message: "Image uploaded", user: updatedUser });
-  } catch (e) {
-    next(e.message);;
+  } catch (error) {
+    next(error.message);
   }
 };
