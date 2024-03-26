@@ -1,5 +1,6 @@
 import { User } from "../models/user-model.js";
 import { Product } from "../models/product-model.js";
+import ResponseHandler from "../utils/response-handling.js";
 
 export const getUsers = async (req, res) => {
   try {
@@ -11,7 +12,7 @@ export const getUsers = async (req, res) => {
       User.countDocuments(),
     ]);
 
-    res.status(200).send({ users, total });
+    return ResponseHandler.handleListResponse(res, { users, total });
   } catch (error) {
     res.status(404).send({ message: error.message });
   }
@@ -32,9 +33,9 @@ export const getUserProducts = async (req, res) => {
       .limit(limit)
       .skip(skip);
 
-    res.status(200).send({ userProducts });
+    return ResponseHandler.handleListResponse(res, { userProducts });
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    res.status(404).send({ message: error.message });;
   }
 };
 
@@ -49,9 +50,9 @@ export const updateUser = async (req, res) => {
       { new: true },
     );
 
-    res.status(404).send({ message: "User updated", user: updatedUser });
+    return ResponseHandler.handleUpdateResponse(res, {user: updatedUser });
   } catch (e) {
-    res.status(404).send({ message: e.message });
+    res.status(404).send({ message: error.message });;
   }
 };
 
@@ -64,8 +65,8 @@ export const addUserImage = async (req, res) => {
       { pictureUrl: req.file.path },
       { new: true },
     );
-    res.status(201).send({ message: "Image uploaded", user: updatedUser });
+    return ResponseHandler.handleUpdateResponse(res,{ message: "Image uploaded", user: updatedUser });
   } catch (e) {
-    res.status(404).send(e.message);
+    res.status(404).send({ message: error.message });;
   }
 };
