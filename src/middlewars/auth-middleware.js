@@ -10,9 +10,17 @@ export default class Authorize {
       res.status(401).send({ message: e.message });
     }
   }
+
   static async isAdmin(req, res, next) {
+    try {
       const { authorization } = req.headers;
       const userInfo = await JWTLib.verifyUserToken(authorization);
-      next();
+
+      if (userInfo.role === "admin") {
+        next();
+      }
+    } catch (e) {
+      next(e.message);
+    }
   }
 }

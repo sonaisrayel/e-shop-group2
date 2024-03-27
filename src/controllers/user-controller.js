@@ -1,12 +1,11 @@
 import { User } from "../models/user-model.js";
 import { Product } from "../models/product-model.js";
-import ResponseHandler from "../utils/response-handling.js";
-import { validationError, notFoundError } from '../errors/error-handling.js';
+import ResponseHandler from "../handlers/response-handling.js";
+import { validationError, notFoundError } from "../handlers/error-handling.js";
 
 export const getUsers = async (req, res, next) => {
   try {
     const { limit, skip } = req.query;
-    const { userInfo } = req;
 
     const [users, total] = await Promise.all([
       User.find({}).limit(limit).skip(skip).select("-password"),
@@ -27,11 +26,14 @@ export const getUserProducts = async (req, res, next) => {
     const [user] = await User.find({ _id: id });
 
     if (!user) {
-      return notFoundError();
+      return notFoundError(res, "User not found");
     }
 
-    if(user.role !== 'seller'){
-      return validationError();
+    if (user.role !== "seller") {
+      return validationError(
+        res,
+        "You user type is no valid for doing this task",
+      );
     }
 
     const userProducts = await Product.find({ ownerId: id })
@@ -49,14 +51,13 @@ export const updateUser = async (req, res, next) => {
     const { id } = req.userInfo;
     const { name, surname } = req.body;
 
-
     const updatedUser = await User.findOneAndUpdate(
       { _id: id },
       { name, surname },
       { new: true },
     ).select("-password");
 
-    return ResponseHandler.handleUpdateResponse(res, {user: updatedUser });
+    return ResponseHandler.handleUpdateResponse(res, { user: updatedUser });
   } catch (error) {
     next(error.message);
   }
@@ -69,9 +70,13 @@ export const addUserImage = async (req, res, next) => {
     const updatedUser = await User.findOneAndUpdate(
       { _id: userInfo.id },
       { pictureUrl: req.file.path },
-      { new: true }
+      { new: true },
     );
-    return ResponseHandler.handleUpdateResponse(res,{ message: "Image uploaded", user: updatedUser });
+
+    return ResponseHandler.handleUpdateResponse(res, {
+      message: "Image uploaded",
+      user: updatedUser,
+    });
   } catch (error) {
     next(error.message);
   }
