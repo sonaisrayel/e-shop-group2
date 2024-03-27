@@ -2,6 +2,7 @@ import { Product } from '../models/product-model.js';
 import moment from 'moment';
 import { productValidationSchema } from '../utils/validations/product-validation.js';
 
+
 export const getProducts = async (req, res) => {
     try {
         const { limit, skip } = req.query;
@@ -16,10 +17,10 @@ export const getProducts = async (req, res) => {
         }
         res.status(200).send({ products, total: totalProducts });
 
-    } catch (error) {
-        res.status(404).send({ "message": error.message });
-    }
-}
+  } catch (error) {
+    res.status(404).send({ message: error.message });
+  }
+};
 
 export const getProduct = async (req, res) => {
     try {
@@ -31,10 +32,10 @@ export const getProduct = async (req, res) => {
         }
         res.status(200).send({ product });
 
-    } catch (error) {
-        res.status(404).send({ "message": error.message });
-    }
-}
+  } catch (error) {
+    res.status(404).send({ message: error.message });
+  }
+};
 
 export const createProduct = async (req, res) => {
     try {
@@ -65,38 +66,19 @@ export const createProduct = async (req, res) => {
     }
 }
 
-export const updateProduct = async (req, res) => {
-    try {
-        const payload = req.body;
-        const { id } = req.params;
-
-        const updatedProduct = await Product.findOneAndUpdate({ _id: id }, payload, { new: true });
-
-        if (!updatedProduct) {
-            throw new Error ('Product not found or not updated.');
-        }
-        
-
-        res.status(201).send({ updatedProduct })
-
-    } catch (error) {
-        res.status(404).send({ "message": error.message })
-    }
-}
 
 export const deleteProduct = async (req, res) => {
-    try {
-        const { id } = req.params;
+  try {
+    const { userInfo } = req;
+    const { id } = req.params;
 
-        const deletedProduct = await Product.findOneAndDelete({ _id: id });
-
-        if (!deletedProduct) {
-            throw new Error ('Product not found or not deleted.');
-        }
-
-        res.status(201).send({ deletedProduct })
-
-    } catch (error) {
-        res.status(404).send({ "message": error.message })
+    if (userInfo.role !== "seller") {
+      throw new Error("For deleting product, you must be a seller");
     }
-}
+    const deletedProduct = await Product.findOneAndDelete({ _id: id });
+
+    res.status(201).send({ deletedProduct });
+  } catch (error) {
+    res.status(404).send({ message: error.message });
+  }
+};
