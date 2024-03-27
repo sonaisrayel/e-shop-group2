@@ -23,4 +23,15 @@ export default class Authorize {
       next(e.message);
     }
   }
+  static async isSeller(req, res, next) {
+    try {
+      if (req.userInfo.role === "seller") {
+        next();
+      } else {
+        res.status(403).send({ error: "You are not a seller" })
+      }
+    } catch (e) {
+      res.status(404).send({ message: e.message });
+    }
+  }
 }

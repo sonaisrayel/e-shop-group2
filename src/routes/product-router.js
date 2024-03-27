@@ -7,10 +7,12 @@ import Authorize from '../middlewars/auth-middleware.js';
 router.get('/:id', getProduct);
 router.get('/', getProducts);
 
-router.post('/', Authorize.authorized, createProduct);
-router.patch('/:id', Authorize.authorized, updateProduct);
-router.delete('/:id', Authorize.authorized, deleteProduct);
+router.use (Authorize.authorized);
+router.use (Authorize.isSeller);
 
+router.post('/', createProduct);
+router.patch('/:id', updateProduct);
+router.delete('/:id', deleteProduct);
 
 router.get("/", getProducts);
 router.get("/:id", getProduct);
