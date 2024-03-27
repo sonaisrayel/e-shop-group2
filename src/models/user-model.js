@@ -14,11 +14,15 @@ const userSchema = new Schema({
     type: String,
     required: true,
     unique: true,
+    immutable:true
+
   },
   email: {
     type: String,
     required: true,
     unique: true,
+    immutable:true
+
   },
   password: {
     type: String,
