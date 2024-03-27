@@ -49,11 +49,12 @@ export const updateUser = async (req, res, next) => {
     const { id } = req.userInfo;
     const { name, surname } = req.body;
 
+
     const updatedUser = await User.findOneAndUpdate(
       { _id: id },
       { name, surname },
       { new: true },
-    );
+    ).select("-password");
 
     return ResponseHandler.handleUpdateResponse(res, {user: updatedUser });
   } catch (error) {
@@ -68,7 +69,7 @@ export const addUserImage = async (req, res, next) => {
     const updatedUser = await User.findOneAndUpdate(
       { _id: userInfo.id },
       { pictureUrl: req.file.path },
-      { new: true },
+      { new: true }
     );
     return ResponseHandler.handleUpdateResponse(res,{ message: "Image uploaded", user: updatedUser });
   } catch (error) {
