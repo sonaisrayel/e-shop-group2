@@ -1,27 +1,24 @@
 import { User } from "../models/user-model.js";
 import { Product } from "../models/product-model.js";
+import ResponseHandler from "../handlers/response-handling.js";
+import { validationError, notFoundError } from "../handlers/error-handling.js";
 
-export const getUsers = async (req, res) => {
+export const getUsers = async (req, res, next) => {
   try {
     const { limit, skip } = req.query;
-    const { userInfo } = req;
-
-    if (userInfo.role !== "admin") {
-      throw new Error("For see all users you must be an admin");
-    }
 
     const [users, total] = await Promise.all([
       User.find({}).limit(limit).skip(skip).select("-password"),
       User.countDocuments(),
     ]);
 
-    res.status(200).send({ users, total });
+    return ResponseHandler.handleListResponse(res, { users, total });
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    next(error.message);
   }
 };
 
-export const getUserProducts = async (req, res) => {
+export const getUserProducts = async (req, res, next) => {
   try {
     const { limit, skip } = req.query;
     const { id } = req.params;
@@ -29,20 +26,27 @@ export const getUserProducts = async (req, res) => {
     const [user] = await User.find({ _id: id });
 
     if (!user) {
-      throw new Error("This user doesn't exist");
+      return notFoundError(res, "User not found");
+    }
+
+    if (user.role !== "seller") {
+      return validationError(
+        res,
+        "You user type is no valid for doing this task",
+      );
     }
 
     const userProducts = await Product.find({ ownerId: id })
       .limit(limit)
       .skip(skip);
 
-    res.status(200).send({ userProducts });
+    return ResponseHandler.handleListResponse(res, { userProducts });
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    next(error.message);
   }
 };
 
-export const updateUser = async (req, res) => {
+export const updateUser = async (req, res, next) => {
   try {
     const { id } = req.userInfo;
     const { name, surname } = req.body;
@@ -51,10 +55,29 @@ export const updateUser = async (req, res) => {
       { _id: id },
       { name, surname },
       { new: true },
+    ).select("-password");
+
+    return ResponseHandler.handleUpdateResponse(res, { user: updatedUser });
+  } catch (error) {
+    next(error.message);
+  }
+};
+
+export const addUserImage = async (req, res, next) => {
+  try {
+    const { userInfo } = req;
+
+    const updatedUser = await User.findOneAndUpdate(
+      { _id: userInfo.id },
+      { pictureUrl: req.file.path },
+      { new: true },
     );
 
-    res.status(404).send({ message: "User updated", user: updatedUser });
-  } catch (e) {
-    res.status(404).send({ message: e.message });
+    return ResponseHandler.handleUpdateResponse(res, {
+      message: "Image uploaded",
+      user: updatedUser,
+    });
+  } catch (error) {
+    next(error.message);
   }
 };
