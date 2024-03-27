@@ -2,14 +2,19 @@ import { Product } from "../models/product-model.js";
 import moment from "moment";
 
 export const getProducts = async (req, res) => {
-  try {
-    const { limit, skip } = req.query;
-    const products = await Product.find({}).limit(limit).skip(skip);
+    try {
+        const {limit, skip} = req.query;
 
-    if (!products.length) {
-      throw new Error("Products not found!");
-    }
-    res.status(200).send({ products });
+        const [products, totalProducts] = await Promise.all([
+            Product.find({}).limit(limit).skip(skip),
+            Product.countDocuments ({})
+        ])
+       
+        if (!products.length) {
+            throw new Error('Products not found!');            
+        }
+        res.status(200).send({products, total: totalProducts});
+
   } catch (error) {
     res.status(404).send({ message: error.message });
   }
