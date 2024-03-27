@@ -47,6 +47,7 @@ export const createProduct = async (req, res) => {
             res.status(400).json({ error: error.details[0].message });
         }
 
+
         const createdAt = moment()
         const createdProduct = await Product.create({
             name,
@@ -82,3 +83,23 @@ export const deleteProduct = async (req, res) => {
     res.status(404).send({ message: error.message });
   }
 };
+
+
+export const updateProduct = async (req, res) => {
+    try {
+        const payload = req.body;
+        const { id } = req.params;
+        const userId = req.userInfo.id
+
+        const updatedProduct = await Product.findOneAndUpdate({ _id: id,ownerId:userId }, payload, { new: true });
+
+        if (!updatedProduct) {
+            throw new Error ('Product not found or not updated.');
+        }
+
+        res.status(201).send({ updatedProduct })
+
+    } catch (error) {
+        res.status(404).send({ "message": error.message })
+    }
+}
