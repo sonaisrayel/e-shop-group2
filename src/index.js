@@ -7,6 +7,7 @@ app.use(express.json());
 
 import { connection } from './storages/db.js';
 import Authorize from './middlewars/auth-middleware.js';
+import ErrorMiddleware from './middlewars/error-middleware.js';
 const { PORT } = process.env;
 
 connection();
@@ -39,7 +40,7 @@ app.use('/orders', ordersRouter);
 
 
 
-
+app.use(ErrorMiddleware.customError);
 
 app.listen(PORT, () => {
     console.log(`Server started at port ${PORT}`);
