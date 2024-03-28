@@ -8,7 +8,7 @@ export const adminLogin = async (req, res) => {
 
     const { username, password } = req.body;
 
-    if ((username !== adminUsername) && (password !== adminPassword)) {
+    if (username !== adminUsername && password !== adminPassword) {
       return ResponseHandler.handlePostResponse(
         "Access denied! You are not admin.",
         res,

@@ -10,13 +10,13 @@ export const getUsers = async (req, res, next) => {
       User.find({}).limit(limit).skip(skip).select("-password"),
       User.countDocuments(),
     ]);
-    
-  res.status(200).send({ users, total });
+
+    res.status(200).send({ users, total });
   } catch (error) {
     res.status(404).send({ message: error.message });
   }
 };
-   
+
 export const getUserProducts = async (req, res) => {
   try {
     const { limit, skip } = req.query;
@@ -24,16 +24,16 @@ export const getUserProducts = async (req, res) => {
 
     const [user] = await User.find({ _id: id });
 
-      const [userProducts, totalUserProducts] = await Promise.all([
+    const [userProducts, totalUserProducts] = await Promise.all([
       Product.find({ ownerId: id }).limit(limit).skip(skip),
-      Product.countDocuments ({ ownerId: id })
-  ])
+      Product.countDocuments({ ownerId: id }),
+    ]);
 
-  if (!userProducts.length) {
-      throw new Error('Products not found!');            
-  }
-  
-  res.status(200).send({products: userProducts, total: totalUserProducts});
+    if (!userProducts.length) {
+      throw new Error("Products not found!");
+    }
+
+    res.status(200).send({ products: userProducts, total: totalUserProducts });
   } catch (error) {
     res.status(404).send({ message: error.message });
   }
