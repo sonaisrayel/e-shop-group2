@@ -5,13 +5,11 @@ const Schema = mongoose.Schema;
 const FavouritesSchema = new Schema({
   userId: {
     type: Schema.Types.ObjectId,
-    ref: 'User',
-    // required: true
+    ref: 'User'
   },
   products: [{
     type: Schema.Types.ObjectId,
-    ref: 'Product',
-    // required: true
+    ref: 'Product'
   }],
 },
 
