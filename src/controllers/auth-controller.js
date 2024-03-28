@@ -1,7 +1,7 @@
 import { User } from "../models/user-model.js";
-import { userValidationSchema } from "../utils/validations/user-validation.js";
-import { passwordValidationSchema } from "../utils/validations/password-validation.js";
-import ResponseHandler from "../utils/response-handling.js";
+import { userValidationSchema } from "../validations/user-validation.js";
+import { passwordValidationSchema } from "../validations/password-validation.js";
+import ResponseHandler from "../handlers/response-handling.js";
 
 import CryptoLib from "../libs/crypto-lib.js";
 import JWTLib from "../libs/jwt-lib.js";
@@ -55,7 +55,10 @@ export const login = async (req, res) => {
     const user = await CryptoLib.compare(password, userParams);
 
     if (!user) {
-      return ResponseHandler.handleErrorResponse("You are not registered!", res);
+      return ResponseHandler.handleErrorResponse(
+        "You are not registered!",
+        res,
+      );
     }
 
     const token = await JWTLib.signUserToken({
@@ -65,7 +68,7 @@ export const login = async (req, res) => {
       role: userParams.role,
     });
 
-    return ResponseHandler.handlePostResponse(res,{
+    return ResponseHandler.handlePostResponse(res, {
       user: { username: userParams.username, email: userParams.email },
       token,
     });
