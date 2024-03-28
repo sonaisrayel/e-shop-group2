@@ -17,31 +17,25 @@ export const getUsers = async (req, res, next) => {
   }
 };
    
-export const getUserProducts = async (req, res, next) => {
+export const getUserProducts = async (req, res) => {
   try {
     const { limit, skip } = req.query;
     const { id } = req.params;
 
     const [user] = await User.find({ _id: id });
 
-    if (!user) {
-      return notFoundError(res, "User not found");
-    }
+      const [userProducts, totalUserProducts] = await Promise.all([
+      Product.find({ ownerId: id }).limit(limit).skip(skip),
+      Product.countDocuments ({ ownerId: id })
+  ])
 
-    if (user.role !== "seller") {
-      return validationError(
-        res,
-        "You user type is no valid for doing this task",
-      );
-    }
-
-    const userProducts = await Product.find({ ownerId: id })
-      .limit(limit)
-      .skip(skip);
-
-    return ResponseHandler.handleListResponse(res, { userProducts });
+  if (!userProducts.length) {
+      throw new Error('Products not found!');            
+  }
+  
+  res.status(200).send({products: userProducts, total: totalUserProducts});
   } catch (error) {
-    next(error.message);
+    res.status(404).send({ message: error.message });
   }
 };
 
