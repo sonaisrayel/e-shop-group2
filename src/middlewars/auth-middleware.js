@@ -12,26 +12,22 @@ export default class Authorize {
   }
 
   static async isAdmin(req, res, next) {
-    try {
       const { authorization } = req.headers;
       const userInfo = await JWTLib.verifyUserToken(authorization);
-
-      if (userInfo.role === "admin") {
+      if (userInfo.payload.role === "admin") {
         next();
+      } else {
+        next(new Error("You are not an admin")) 
       }
-    } catch (e) {
-      next(e.message);
-    }
   }
+  
   static async isSeller(req, res, next) {
-    try {
       if (req.userInfo.role === "seller") {
         next();
       } else {
-        res.status(403).send({ error: "You are not a seller" })
+      next(new Error("You are not a seller"))
       }
-    } catch (e) {
-      res.status(404).send({ message: e.message });
-    }
   }
+  
 }
+ 

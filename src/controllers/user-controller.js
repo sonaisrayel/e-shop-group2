@@ -6,18 +6,17 @@ import { validationError, notFoundError } from "../handlers/error-handling.js";
 export const getUsers = async (req, res, next) => {
   try {
     const { limit, skip } = req.query;
-
     const [users, total] = await Promise.all([
       User.find({}).limit(limit).skip(skip).select("-password"),
       User.countDocuments(),
     ]);
-
-    return ResponseHandler.handleListResponse(res, { users, total });
+    
+  res.status(200).send({ users, total });
   } catch (error) {
-    next(error.message);
+    res.status(404).send({ message: error.message });
   }
 };
-
+   
 export const getUserProducts = async (req, res, next) => {
   try {
     const { limit, skip } = req.query;
