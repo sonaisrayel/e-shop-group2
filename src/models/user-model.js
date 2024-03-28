@@ -22,13 +22,13 @@ const userSchema = new Schema({
     },
     password:{
         type: String,
-        required: true
+        required: true,
     },
     role:{
         type: String,
         enum: ["seller", "buyer"],
         required: true,
-        default: "buyer"
+        default: "buyer",
     },
     createdAt:{
         type: Date,
