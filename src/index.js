@@ -37,7 +37,6 @@ app.use("/orders", ordersRouter);
 
 app.use(customError);
 
-
 app.listen(PORT, () => {
   console.log(`Server started at port ${PORT}`);
 });
