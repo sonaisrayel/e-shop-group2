@@ -11,7 +11,8 @@ const verifyUserToken = async (token) => {
 };
 
 const signAdminToken = async (payload) => {
-  return JWT.sign({ payload }, SECRET, { expiresIn: "15d" });
+  const { role, username } = payload;
+  return JWT.sign({ role, username }, SECRET, { expiresIn: "15d" });
 };
 
 export default { signUserToken, verifyUserToken, signAdminToken };
