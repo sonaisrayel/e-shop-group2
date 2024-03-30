@@ -1,4 +1,5 @@
 import JWTLib from "../libs/jwt-lib.js";
+import { validationError } from "../handlers/error-handling.js";
 
 export default class Authorize {
   static async authorized(req, res, next) {
@@ -12,20 +13,29 @@ export default class Authorize {
   }
 
   static async isAdmin(req, res, next) {
-    const { authorization } = req.headers;
-    const userInfo = await JWTLib.verifyUserToken(authorization);
-    if (userInfo.payload.role === "admin") {
-      next();
-    } else {
-      next(new Error("You are not an admin"));
+
+    try {
+      const { authorization } = req.headers;
+      const userInfo = await JWTLib.verifyUserToken(authorization);
+      console.log(userInfo);
+      if (userInfo.role === "admin") {
+        next();
+      } else {
+        return validationError(res, "Access denied!");
+      }
+    } catch (e) {
+      return e.message;
+
     }
   }
 
   static async isSeller(req, res, next) {
+
     if (req.userInfo.role === "seller") {
       next();
     } else {
       next(new Error("You are not a seller"));
+
     }
   }
 }
