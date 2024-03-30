@@ -19,7 +19,6 @@ router.patch("/", updateUser);
 router.patch(
   "/image",
   upload.single("file"),
-  Authorize.authorized,
   addUserImage,
 );
 
