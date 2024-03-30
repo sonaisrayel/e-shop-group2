@@ -1,108 +1,101 @@
-import { Product } from '../models/product-model.js';
-import moment from 'moment';
+import { Product } from "../models/product-model.js";
+import moment from "moment";
+import { productValidationSchema } from "../utils/validations/product-validation.js";
 
 export const getProducts = async (req, res) => {
-    try {
-        const {limit, skip} = req.query
-        console.log(limit);
-        const products = await Product.find({}).limit(limit).skip(skip);
-        
-        if (!products.length) {
-            throw new Error('Products not found!');            
-        }
-        res.status(200).send({products});
+  try {
+    const { limit, skip } = req.query;
 
-    } catch (error) {
-        res.status(404).send({ "message": error.message });
+    const [products, totalProducts] = await Promise.all([
+      Product.find({}).limit(limit).skip(skip),
+      Product.countDocuments({}),
+    ]);
+
+    if (!products.length) {
+      throw new Error("Products not found!");
     }
-}
+    res.status(200).send({ products, total: totalProducts });
+  } catch (error) {
+    res.status(404).send({ message: error.message });
+  }
+};
 
 export const getProduct = async (req, res) => {
-    try {
-        const { id } = req.params;
-        const product = await Product.findOne({ _id: id });
-    
-        if (!product) {
-            throw new Error("Product not found!");            
-        }
-        res.status(200).send({product});
+  try {
+    const { id } = req.params;
+    const product = await Product.findOne({ _id: id });
 
-    } catch (error) {
-        res.status(404).send({ "message": error.message });
+    if (!product) {
+      throw new Error("Product not found!");
     }
-}
+    res.status(200).send({ product });
+  } catch (error) {
+    res.status(404).send({ message: error.message });
+  }
+};
 
 export const createProduct = async (req, res) => {
-    try {
+  try {
+    const { userInfo } = req;
+    const { name, category, description, price, quantity } = req.body;
 
-        const { userInfo } = req;
-        const { name, category, description, price, quantity } = req.body;
-
-        if (!userInfo) {
-            throw new Error('You are not authorized!!!');
-        }
-        if (userInfo.role !== "seller") {
-            throw new Error('For creating product, you must be a seller');
-        }
-
-        const createdAt = moment()
-        const createdProduct = await Product.create({
-            name,
-            category,
-            description,
-            price,
-            quantity,
-            ownerId: userInfo.id,
-            createdAt,
-            updatedAt: createdAt
-        });
-
-        res.status(201).send({createdProduct})
-
-    } catch (error) {
-        res.status(404).send({ "message": error.message })
+    const { error } = productValidationSchema.validate(req.body);
+    if (error) {
+      res.status(400).json({ error: error.details[0].message });
     }
-}
 
-export const updateProduct = async (req, res) => {
-    try {
+    const createdAt = moment();
+    const createdProduct = await Product.create({
+      name,
+      category,
+      description,
+      price,
+      quantity,
+      ownerId: userInfo.id,
+      createdAt,
+      updatedAt: createdAt,
+    });
 
-        const { userInfo } = req;
-        const payload = req.body;
-        const { id } = req.params;
-
-        if (!userInfo) {
-            throw new Error('You are not authorized!!!');
-        }
-        if (userInfo.role !== "seller") {
-            throw new Error('For updating product, you must be a seller');
-        }
-         
-        const updatedProduct = await Product.findOneAndUpdate({ _id: id }, payload, { new: true });
-
-        res.status(201).send({updatedProduct})
-
-    } catch (error) {
-        res.status(404).send({ "message": error.message })
-    }
-}
+    res.status(201).send({ createdProduct });
+  } catch (error) {
+    res.status(404).send({ message: error.message });
+  }
+};
 
 export const deleteProduct = async (req, res) => {
-    try {
-        const { userInfo } = req;
-        const { id } = req.params;
+  try {
+    const { userInfo } = req;
+    const { id } = req.params;
 
-        if (!userInfo) {
-            throw new Error('You are not authorized!!!');
-        }
-        if (userInfo.role !== "seller") {
-            throw new Error('For deleting product, you must be a seller');
-        }
-        const deletedProduct = await Product.findOneAndDelete({ _id: id });
-
-        res.status(201).send({deletedProduct})
-
-    } catch (error) {
-        res.status(404).send({ "message": error.message })
+    if (userInfo.role !== "seller") {
+      throw new Error("For deleting product, you must be a seller");
     }
-}
+    const deletedProduct = await Product.findOneAndDelete({ _id: id });
+
+    res.status(201).send({ deletedProduct });
+  } catch (error) {
+    res.status(404).send({ message: error.message });
+  }
+};
+
+export const updateProduct = async (req, res) => {
+  try {
+    const payload = req.body;
+    const { id } = req.params;
+    const userId = req.userInfo.id;
+
+    const updatedProduct = await Product.findOneAndUpdate(
+      { _id: id, ownerId: userId },
+      payload,
+      { new: true },
+    );
+
+    if (!updatedProduct) {
+      throw new Error("Product not found or not updated.");
+    }
+
+    res.status(201).send({ updatedProduct });
+  } catch (error) {
+    res.status(404).send({ message: error.message });
+  }
+};
