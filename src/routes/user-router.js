@@ -13,13 +13,18 @@ import Authorize from "../middlewars/auth-middleware.js";
 
 router.get("/:id/products", getUserProducts);
 
-router.patch("/", Authorize.authorized, updateUser);
+
+router.use(Authorize.authorized);
+router.patch("/", updateUser);
 router.patch(
   "/image",
   upload.single("file"),
   Authorize.authorized,
   addUserImage,
 );
-router.get("/", Authorize.isAdmin, getUsers);
+
+router.use(Authorize.isAdmin);
+router.get("/", getUsers);
+
 
 export default router;

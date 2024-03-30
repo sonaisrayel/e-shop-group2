@@ -10,6 +10,7 @@ export const adminLogin = async (req, res, next) => {
     const { username, password } = req.body;
 
     if (username !== adminUsername && password !== adminPassword) {
+
       return validationError(res, "Access denied! You are not admin.");
     }
     const token = await jwtLib.signAdminToken({
