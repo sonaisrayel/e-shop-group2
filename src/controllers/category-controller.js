@@ -1,6 +1,5 @@
 import { Category } from "../models/category-model.js";
 
-
 export const createCategory = async (req, res) => {
     try {
         const { title } = req.body;
@@ -32,7 +31,7 @@ export const getCategories = async (req, res) => {
 }
 
 
-export const deletCategory = async (req, res) => {
+export const deleteCategory = async (req, res) => {
     try {
         const { title } = req.body
         const del = await Category.deleteOne({ title });
