@@ -3,14 +3,14 @@ const router = Router();
 
 import {
   createCategory,
+  getCategories,
+  deleteCategory,
   getCategory,
-  deletCategory,
-  getOneCategory,
 } from "../controllers/category-controller.js";
 
 router.post("/", createCategory);
-router.get("/:id", getOneCategory);
+router.get("/:id", getCategories);
 router.get("/", getCategory);
-router.delete("/", deletCategory);
+router.delete("/", deleteCategory);
 
 export default router;
