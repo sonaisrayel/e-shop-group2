@@ -11,13 +11,13 @@ export const getUsers = async (req, res, next) => {
       User.countDocuments(),
     ]);
 
-    res.status(200).send({ users, total });
+    return ResponseHandler.handleListResponse(res, { users, total });
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    next(error.message);
   }
 };
 
-export const getUserProducts = async (req, res) => {
+export const getUserProducts = async (req, res, next) => {
   try {
     const { limit, skip } = req.query;
     const { id } = req.params;
@@ -33,9 +33,12 @@ export const getUserProducts = async (req, res) => {
       throw new Error("Products not found!");
     }
 
-    res.status(200).send({ products: userProducts, total: totalUserProducts });
+    return ResponseHandler.handleListResponse({
+      products: userProducts,
+      total: totalUserProducts,
+    });
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    next(error.message);
   }
 };
 
