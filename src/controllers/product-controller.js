@@ -67,10 +67,16 @@ export const deleteProduct = async (req, res) => {
     const { userInfo } = req;
     const { id } = req.params;
 
-    if (userInfo.role !== "seller") {
-      throw new Error("For deleting product, you must be a seller");
+    const deletedProduct = await Product.findOneAndDelete({
+      _id: id,
+      ownerId: userInfo.id,
+    });
+
+    if (!deletedProduct) {
+      return res
+        .status(404)
+        .send({ message: "Product not found or not deleted." });
     }
-    const deletedProduct = await Product.findOneAndDelete({ _id: id });
 
     res.status(201).send({ deletedProduct });
   } catch (error) {
@@ -81,13 +87,39 @@ export const deleteProduct = async (req, res) => {
 export const updateProduct = async (req, res) => {
   try {
     const payload = req.body;
+    const { userInfo } = req;
     const { id } = req.params;
-    const userId = req.userInfo.id;
 
     const updatedProduct = await Product.findOneAndUpdate(
-      { _id: id, ownerId: userId },
+      { _id: id, ownerId: userInfo.id },
       payload,
       { new: true },
+    );
+
+    if (!updatedProduct) {
+      throw new Error("Product not found or not updated.");
+    }
+
+    res.status(201).send({ updatedProduct });
+  } catch (error) {
+    res.status(404).send({ message: error.message });
+  }
+};
+
+export const addProductImage = async (req, res) => {
+  try {
+    const { userInfo } = req;
+    const { file } = req;
+    const { id } = req.params;
+
+    if (!file) {
+      throw new Error("You need to attach a file");
+    }
+
+    const updatedProduct = await Product.findOneAndUpdate(
+      { _id: id, ownerId: userInfo.id },
+      { $addToSet: { pictureUrls: file.path } },
+      { new: true, upsert: true },
     );
 
     if (!updatedProduct) {
