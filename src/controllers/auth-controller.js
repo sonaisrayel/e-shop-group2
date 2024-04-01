@@ -2,11 +2,12 @@ import { User } from "../models/user-model.js";
 import { userValidationSchema } from "../validations/user-validation.js";
 import { passwordValidationSchema } from "../validations/password-validation.js";
 import ResponseHandler from "../handlers/response-handling.js";
+import { notFoundError } from "../handlers/error-handling.js";
 
 import CryptoLib from "../libs/crypto-lib.js";
 import JWTLib from "../libs/jwt-lib.js";
 
-export const registration = async (req, res) => {
+export const registration = async (req, res, next) => {
   try {
     const { name, surname, username, password, repeatPassword, email, role } =
       req.body;
@@ -40,11 +41,11 @@ export const registration = async (req, res) => {
 
     return ResponseHandler.handlePostResponse(res, { user: user });
   } catch (e) {
-    return ResponseHandler.handleErrorResponse({ message: e.message }, res);
+    next(e.message);
   }
 };
 
-export const login = async (req, res) => {
+export const login = async (req, res, next) => {
   try {
     const { email, password } = req.body;
 
@@ -55,10 +56,7 @@ export const login = async (req, res) => {
     const user = await CryptoLib.compare(password, userParams);
 
     if (!user) {
-      return ResponseHandler.handleErrorResponse(
-        "You are not registered!",
-        res,
-      );
+      return notFoundError("You are not registered!", res);
     }
 
     const token = await JWTLib.signUserToken({
@@ -73,6 +71,6 @@ export const login = async (req, res) => {
       token,
     });
   } catch (e) {
-    return ResponseHandler.handleErrorResponse({ message: e.message }, res);
+    next(e.message);
   }
 };
