@@ -131,3 +131,24 @@ export const addProductImage = async (req, res) => {
     res.status(404).send({ message: error.message });
   }
 };
+
+export const deleteProductImage = async (req, res) => {
+  try {
+    const { userInfo } = req;
+    const { id } = req.params;
+    const { index } = req.body;
+
+    const product = await Product.findOne({ _id: id, ownerId: userInfo.id });
+
+    if (!product) {
+      throw new Error("Product not found.");
+    }
+
+    product.pictureUrls.splice(index, 1);
+    const updatedProduct = await product.save();
+
+    res.status(200).send({ updatedProduct });
+  } catch (error) {
+    res.status(404).send({ message: error.message });
+  }
+};
