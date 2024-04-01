@@ -9,4 +9,5 @@ export const productValidationSchema = Joi.object({
   ownerId: Joi.string(),
   createdAt: Joi.date().default(new Date()),
   updatedAt: Joi.date().default(null),
+  pictureUrls: Joi.array().items(Joi.string()),
 });

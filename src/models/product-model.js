@@ -34,6 +34,7 @@ const productSchema = new Schema({
   updatedAt: {
     type: Date,
   },
+  pictureUrls: [String],
 });
 
 const Product = mongoose.model("Product", productSchema);
