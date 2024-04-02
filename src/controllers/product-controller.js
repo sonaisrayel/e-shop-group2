@@ -139,13 +139,19 @@ export const deleteProductImage = async (req, res) => {
     const { index } = req.body;
 
     const product = await Product.findOne({ _id: id, ownerId: userInfo.id });
-
     if (!product) {
       throw new Error("Product not found.");
     }
 
-    product.pictureUrls.splice(index, 1);
-    const updatedProduct = await product.save();
+    const updatedProduct = await Product.findOneAndUpdate(
+      { _id: id, ownerId: userInfo.id },
+      { $pull: { pictureUrls: product.pictureUrls[index] } },
+      { new: true },
+    );
+
+    if (!updatedProduct) {
+      throw new Error("Product not updated.");
+    }
 
     res.status(200).send({ updatedProduct });
   } catch (error) {
