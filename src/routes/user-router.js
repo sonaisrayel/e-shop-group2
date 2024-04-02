@@ -7,23 +7,19 @@ import {
   getUserProducts,
   updateUser,
   addUserImage,
+  deleteUser,
 } from "../controllers/user-controller.js";
 
 import Authorize from "../middlewars/auth-middleware.js";
 
 router.get("/:id/products", getUserProducts);
 
-
 router.use(Authorize.authorized);
 router.patch("/", updateUser);
-router.patch(
-  "/image",
-  upload.single("file"),
-  addUserImage,
-);
+router.patch("/image", upload.single("file"), addUserImage);
+router.delete("/:id", deleteUser);
 
 router.use(Authorize.isAdmin);
 router.get("/", getUsers);
-
 
 export default router;
