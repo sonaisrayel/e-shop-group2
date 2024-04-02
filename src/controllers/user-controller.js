@@ -42,6 +42,21 @@ export const getUserProducts = async (req, res, next) => {
   }
 };
 
+export const deleteUser = async (req, res, next) => {
+  try {
+    const { userInfo } = req;
+    const { id } = req.params;
+    if (userInfo.role === "admin" || userInfo.id === id) {
+      const deletedUser = await User.findOneAndDelete({ _id: id });
+    }
+    return ResponseHandler.handleDeleteResponse(res, {
+      message: "Successfully deleted!",
+    });
+  } catch (error) {
+    next(error.message);
+  }
+};
+
 export const updateUser = async (req, res, next) => {
   try {
     const { id } = req.userInfo;
