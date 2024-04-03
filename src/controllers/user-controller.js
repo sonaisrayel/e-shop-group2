@@ -1,7 +1,7 @@
 import { User } from "../models/user-model.js";
 import { Product } from "../models/product-model.js";
 import ResponseHandler from "../handlers/response-handling.js";
-import { validationError, notFoundError } from "../handlers/error-handling.js";
+import { notFoundError } from "../handlers/error-handling.js";
 
 export const getUsers = async (req, res, next) => {
   try {
@@ -22,18 +22,16 @@ export const getUserProducts = async (req, res, next) => {
     const { limit, skip } = req.query;
     const { id } = req.params;
 
-    const [user] = await User.find({ _id: id });
-
     const [userProducts, totalUserProducts] = await Promise.all([
       Product.find({ ownerId: id }).limit(limit).skip(skip),
       Product.countDocuments({ ownerId: id }),
     ]);
 
     if (!userProducts.length) {
-      throw new Error("Products not found!");
+      return notFoundError(res, "Error finding user products");
     }
 
-    return ResponseHandler.handleListResponse({
+    return ResponseHandler.handleListResponse(res, {
       products: userProducts,
       total: totalUserProducts,
     });
