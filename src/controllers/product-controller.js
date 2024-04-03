@@ -1,8 +1,10 @@
 import { Product } from "../models/product-model.js";
 import moment from "moment";
 import { productValidationSchema } from "../utils/validations/product-validation.js";
+import ResponseHandler from "../handlers/response-handling.js";
+import { validationError, notFoundError } from "../handlers/error-handling.js";
 
-export const getProducts = async (req, res) => {
+export const getProducts = async (req, res, next) => {
   try {
     const { limit, skip } = req.query;
 
@@ -12,36 +14,39 @@ export const getProducts = async (req, res) => {
     ]);
 
     if (!products.length) {
-      throw new Error("Products not found!");
+      return notFoundError(res, "Products not found!");
     }
-    res.status(200).send({ products, total: totalProducts });
+    return ResponseHandler.handleListResponse(res, {
+      products,
+      total: totalProducts,
+    });
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    next(error.message);
   }
 };
 
-export const getProduct = async (req, res) => {
+export const getProduct = async (req, res, next) => {
   try {
     const { id } = req.params;
     const product = await Product.findOne({ _id: id });
 
     if (!product) {
-      throw new Error("Product not found!");
+      return notFoundError(res, "Product not found!");
     }
-    res.status(200).send({ product });
+    return ResponseHandler.handleGetResponse(res, { product });
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    next(error.message);
   }
 };
 
-export const createProduct = async (req, res) => {
+export const createProduct = async (req, res, next) => {
   try {
     const { userInfo } = req;
     const { name, category, description, price, quantity } = req.body;
 
     const { error } = productValidationSchema.validate(req.body);
     if (error) {
-      res.status(400).json({ error: error.details[0].message });
+      return validationError(res, { message: error.details[0].message });
     }
 
     const createdAt = moment();
@@ -56,13 +61,13 @@ export const createProduct = async (req, res) => {
       updatedAt: createdAt,
     });
 
-    res.status(201).send({ createdProduct });
+    return ResponseHandler.handlePostResponse(res, { createdProduct });
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    next(error.message);
   }
 };
 
-export const deleteProduct = async (req, res) => {
+export const deleteProduct = async (req, res, next) => {
   try {
     const { userInfo } = req;
     const { id } = req.params;
@@ -73,18 +78,16 @@ export const deleteProduct = async (req, res) => {
     });
 
     if (!deletedProduct) {
-      return res
-        .status(404)
-        .send({ message: "Product not found or not deleted." });
+      return notFoundError(res, "Product not found or not deleted.");
     }
 
-    res.status(201).send({ deletedProduct });
+    return ResponseHandler.handleDeleteResponse(res, { deletedProduct });
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    next(error.message);
   }
 };
 
-export const updateProduct = async (req, res) => {
+export const updateProduct = async (req, res, next) => {
   try {
     const payload = req.body;
     const { userInfo } = req;
@@ -97,23 +100,23 @@ export const updateProduct = async (req, res) => {
     );
 
     if (!updatedProduct) {
-      throw new Error("Product not found or not updated.");
+      return notFoundError(res, "Product not found or not updated.");
     }
 
-    res.status(201).send({ updatedProduct });
+    return ResponseHandler.handleUpdateResponse(res, { updatedProduct });
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    next(error.message);
   }
 };
 
-export const addProductImage = async (req, res) => {
+export const addProductImage = async (req, res, next) => {
   try {
     const { userInfo } = req;
     const { file } = req;
     const { id } = req.params;
 
     if (!file) {
-      throw new Error("You need to attach a file");
+      return notFoundError(res, "You need to attach a file");
     }
 
     const updatedProduct = await Product.findOneAndUpdate(
@@ -123,16 +126,16 @@ export const addProductImage = async (req, res) => {
     );
 
     if (!updatedProduct) {
-      throw new Error("Product not found or not updated.");
+      return notFoundError(res, "Product not found or not updated.");
     }
 
-    res.status(201).send({ updatedProduct });
+    return ResponseHandler.handleUpdateResponse(res, { updatedProduct });
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    next(error.message);
   }
 };
 
-export const deleteProductImage = async (req, res) => {
+export const deleteProductImage = async (req, res, next) => {
   try {
     const { userInfo } = req;
     const { id } = req.params;
@@ -140,7 +143,7 @@ export const deleteProductImage = async (req, res) => {
 
     const product = await Product.findOne({ _id: id, ownerId: userInfo.id });
     if (!product) {
-      throw new Error("Product not found.");
+      return notFoundError(res, "Product not found.");
     }
 
     const updatedProduct = await Product.findOneAndUpdate(
@@ -150,10 +153,11 @@ export const deleteProductImage = async (req, res) => {
     );
 
     if (!updatedProduct) {
-      throw new Error("Product not updated.");
+      return notFoundError(res, "Product not updated.");
     }
-    res.status(200).send({ updatedProduct });
+
+    return ResponseHandler.handleUpdateResponse(res, { updatedProduct });
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    next(error.message);
   }
 };

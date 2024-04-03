@@ -1,6 +1,8 @@
 import { Favourites } from "../models/favourites-model.js";
+import ResponseHandler from "../handlers/response-handling.js";
+import { notFoundError, duplicateError } from "../handlers/error-handling.js";
 
-export const createFavourite = async (req, res) => {
+export const createFavourite = async (req, res, next) => {
   try {
     const { userInfo } = req;
     const { productId } = req.body;
@@ -9,8 +11,9 @@ export const createFavourite = async (req, res) => {
       userId: userInfo.id,
       products: productId,
     });
+
     if (existingFav) {
-      throw new Error("This product already exists in favorites");
+      return duplicateError(res, "This product already exists in favorites");
     }
 
     const createdFav = await Favourites.findOneAndUpdate(
@@ -20,18 +23,18 @@ export const createFavourite = async (req, res) => {
     );
 
     if (!createdFav) {
-      throw new Error("Something went wrong");
+      return notFoundError(res, "Something went wrong");
     }
 
-    res.status(201).send({ favourite: createdFav });
-  } catch (e) {
-    res.status(404).send({ message: e.message });
+    return ResponseHandler.handlePostResponse(res, { favourite: createdFav });
+  } catch (error) {
+    next(error.message);
   }
 };
 
-export const getFavourites = async (req, res) => {
+export const getFavourites = async (req, res, next) => {
   try {
-    const { limit, skip } = req.query;
+    const { limit, skip } = req.query; //params
     const { userInfo } = req;
 
     const [favourites, totalFavourites] = await Promise.all([
@@ -53,16 +56,22 @@ export const getFavourites = async (req, res) => {
       !favourites.products ||
       favourites.products.length === 0
     ) {
-      throw new Error("There are no favourite products for this user!");
+      return notFoundError(
+        res,
+        "There are no favourite products for this user!",
+      );
     }
 
-    res.status(200).send({ favourites, total: totalFavourites });
+    return ResponseHandler.handleListResponse(res, {
+      favourites,
+      total: totalFavourites,
+    });
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    next(error.message);
   }
 };
 
-export const deleteFavourite = async (req, res) => {
+export const deleteFavourite = async (req, res, next) => {
   try {
     const { userInfo } = req;
     const productId = req.params.id;
@@ -74,11 +83,11 @@ export const deleteFavourite = async (req, res) => {
     );
 
     if (!favouriteData) {
-      throw new Error("Item not found!");
+      return notFoundError(res, "Item not found!");
     }
 
-    res.status(200).send({ favourite: favouriteData });
+    return ResponseHandler.handleDeleteResponse(res, {favourite: favouriteData});
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    next(error.message);
   }
 };
