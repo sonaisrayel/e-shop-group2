@@ -39,6 +39,19 @@ export const registration = async (req, res, next) => {
       "-password",
     );
 
+    if (user.role === "buyer") {
+      await Promise.all([
+        Favourites.create({
+          userId: user._id,
+          products: [],
+        }),
+        Bucket.create({
+          userId: user._id,
+          products: [],
+        }),
+      ]);
+    }
+
     return ResponseHandler.handlePostResponse(res, { user: user });
   } catch (e) {
     next(e.message);
