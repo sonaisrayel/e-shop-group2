@@ -1,7 +1,7 @@
 import { User } from "../models/user-model.js";
 import { Product } from "../models/product-model.js";
 import ResponseHandler from "../handlers/response-handling.js";
-import { notFoundError } from "../handlers/error-handling.js";
+import { notFoundError, validationError } from "../handlers/error-handling.js";
 
 export const getUsers = async (req, res, next) => {
   try {
@@ -45,8 +45,11 @@ export const deleteUser = async (req, res, next) => {
     const { userInfo } = req;
     const { id } = req.params;
     if (userInfo.role === "admin" || userInfo.id === id) {
-      const deletedUser = await User.findOneAndDelete({ _id: id });
+      await User.findOneAndDelete({ _id: id }); 
+    } else {
+      return validationError(res, "Access forbidden!")
     }
+    
     return ResponseHandler.handleDeleteResponse(res, {
       message: "Successfully deleted!",
     });
