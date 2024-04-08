@@ -2,7 +2,7 @@ import { User } from "../models/user-model.js";
 import { userValidationSchema } from "../validations/user-validation.js";
 import { passwordValidationSchema } from "../validations/password-validation.js";
 import ResponseHandler from "../handlers/response-handling.js";
-import { notFoundError } from "../handlers/error-handling.js";
+import { notFoundError, validationError } from "../handlers/error-handling.js";
 import { Favourites } from "../models/favourites-model.js";
 import { Bucket } from "../models/bucket-model.js";
 
@@ -67,11 +67,14 @@ export const login = async (req, res, next) => {
     const userInfo = await User.find({ email });
 
     const [userParams] = userInfo;
+    if (typeof userParams === "undefined") {
+      return validationError(res, "You are not registered");
+    }
 
     const user = await CryptoLib.compare(password, userParams);
 
     if (!user) {
-      return notFoundError("You are not registered!", res);
+      return validationError(res, "Invalid Password");
     }
 
     const token = await JWTLib.signUserToken({
