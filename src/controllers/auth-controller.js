@@ -3,6 +3,8 @@ import { userValidationSchema } from "../validations/user-validation.js";
 import { passwordValidationSchema } from "../validations/password-validation.js";
 import ResponseHandler from "../handlers/response-handling.js";
 import { notFoundError } from "../handlers/error-handling.js";
+import { Favourites } from "../models/favourites-model.js";
+import { Bucket } from "../models/bucket-model.js";
 
 import CryptoLib from "../libs/crypto-lib.js";
 import JWTLib from "../libs/jwt-lib.js";

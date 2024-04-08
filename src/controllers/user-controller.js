@@ -80,7 +80,7 @@ export const addUserImage = async (req, res, next) => {
       { _id: userInfo.id },
       { pictureUrl: req.file.path },
       { new: true },
-    );
+    ).select("-password");
 
     return ResponseHandler.handleUpdateResponse(res, {
       message: "Image uploaded",
