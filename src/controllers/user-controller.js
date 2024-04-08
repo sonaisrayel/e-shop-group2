@@ -45,11 +45,11 @@ export const deleteUser = async (req, res, next) => {
     const { userInfo } = req;
     const { id } = req.params;
     if (userInfo.role === "admin" || userInfo.id === id) {
-      await User.findOneAndDelete({ _id: id }); 
+      await User.findOneAndDelete({ _id: id });
     } else {
-      return validationError(res, "Access forbidden!")
+      return validationError(res, "Access forbidden!");
     }
-    
+
     return ResponseHandler.handleDeleteResponse(res, {
       message: "Successfully deleted!",
     });
