@@ -1,5 +1,6 @@
 import { Product } from "../models/product-model.js";
 import moment from "moment";
+import fs from "fs";
 import { productValidationSchema } from "../utils/validations/product-validation.js";
 import ResponseHandler from "../handlers/response-handling.js";
 import { validationError, notFoundError } from "../handlers/error-handling.js";
@@ -145,6 +146,9 @@ export const deleteProductImage = async (req, res, next) => {
     if (!product) {
       return notFoundError(res, "Product not found.");
     }
+
+    const deletedImagePath = product.pictureUrls[index];
+    fs.unlinkSync(deletedImagePath);
 
     const updatedProduct = await Product.findOneAndUpdate(
       { _id: id, ownerId: userInfo.id },
