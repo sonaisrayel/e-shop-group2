@@ -19,7 +19,7 @@ export const createFavourite = async (req, res, next) => {
     const createdFav = await Favourites.findOneAndUpdate(
       { userId: userInfo.id },
       { $addToSet: { products: productId } },
-      { new: true, upsert: true },
+      { new: true },
     );
 
     if (!createdFav) {
@@ -34,15 +34,15 @@ export const createFavourite = async (req, res, next) => {
 
 export const getFavourites = async (req, res, next) => {
   try {
-    const { limit, skip } = req.query; //params
+    const { limit, skip } = req.query;
     const { userInfo } = req;
 
     const [favourites, totalFavourites] = await Promise.all([
       Favourites.findOne({ userId: userInfo.id }).populate({
         path: "products",
         options: {
-          limit: parseInt(limit),
-          skip: parseInt(skip),
+          limit,
+          skip,
         },
       }),
 
@@ -76,9 +76,9 @@ export const deleteFavourite = async (req, res, next) => {
     const { userInfo } = req;
     const productId = req.params.id;
 
-    const favouriteData = await Favourites.findOneAndDelete(
+    const favouriteData = await Favourites.findOneAndUpdate(
       { userId: userInfo.id },
-      { $pull: { products: { _id: productId } } },
+      { $pull: { products: productId } },
       { new: true },
     );
 
@@ -86,7 +86,9 @@ export const deleteFavourite = async (req, res, next) => {
       return notFoundError(res, "Item not found!");
     }
 
-    return ResponseHandler.handleDeleteResponse(res, {favourite: favouriteData});
+    return ResponseHandler.handleDeleteResponse(res, {
+      favourite: favouriteData,
+    });
   } catch (error) {
     next(error.message);
   }
