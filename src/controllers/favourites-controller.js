@@ -37,9 +37,6 @@ export const getFavourites = async (req, res, next) => {
     const { limit, skip } = req.query;
     const { userInfo } = req;
 
-    console.log(userInfo.id);
-    console.log({ limit, skip });
-
     const favourites = await Favourites.findOne({
       userId: userInfo.id,
     }).populate({
