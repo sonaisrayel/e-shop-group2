@@ -16,7 +16,6 @@ export const createFavourite = async (req, res, next) => {
       return duplicateError(res, "This product already exists in favorites");
     }
 
-
     const createdFav = await Favourites.findOneAndUpdate(
       { userId: userInfo.id },
       { $addToSet: { products: productId } },
@@ -38,23 +37,28 @@ export const getFavourites = async (req, res, next) => {
     const { limit, skip } = req.query;
     const { userInfo } = req;
 
+    console.log(userInfo.id);
+    console.log({ limit, skip });
 
-    const favourites = await
-      Favourites.findOne({ userId: userInfo.id }).populate({
-        path: "products"
-      }).limit(limit).skip(skip);
-
-
-    const [documents] = await Favourites.find({ userId: userInfo.id }).populate({
-      path: 'products'
+    const favourites = await Favourites.findOne({
+      userId: userInfo.id,
+    }).populate({
+      path: "products",
+      options: {
+        limit,
+        skip,
+      },
     });
 
-     const countDocument = documents.products.length
+    const [documents] = await Favourites.find({ userId: userInfo.id }).populate(
+      {
+        path: "products",
+      },
+    );
 
-    if (
-      !favourites ||
-      !favourites.products?.length
-    ) {
+    const countDocument = documents.products.length;
+
+    if (!favourites || !favourites.products?.length) {
       return notFoundError(
         res,
         "There are no favourite products for this user!",
