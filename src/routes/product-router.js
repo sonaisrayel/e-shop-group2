@@ -11,6 +11,7 @@ import {
   addProductImage,
   deleteProductImage,
 } from "../controllers/product-controller.js";
+
 import Authorize from "../middlewars/auth-middleware.js";
 
 router.get("/:id", getProduct);
