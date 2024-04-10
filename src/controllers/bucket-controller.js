@@ -1,6 +1,6 @@
 import { Product } from "../models/product-model.js";
 import { Bucket } from "../models/bucket-model.js";
-import { getTotalPrice } from "../utils/validations/totalPrice.js";
+import { getTotalPrice } from "../helpers/utils.js";
 import ResponseHandler from "../handlers/response-handling.js";
 
 export const addToBucket = async (req, res) => {

@@ -1,8 +1,7 @@
 import { Order } from "../models/order-model.js";
-import { Product } from "../models/product-model.js";
-import { User } from "../models/user-model.js";
 import { Bucket } from "../models/bucket-model.js";
-import { getTotalPrice } from "../utils/validations/totalPrice.js";
+
+import { getTotalPrice } from "../helpers/utils.js";
 import ResponseHandler from "../handlers/response-handling.js";
 
 export const createOrderFromBucket = async (req, res) => {

@@ -1,7 +1,8 @@
+import fs from "fs";
+
 import { Product } from "../models/product-model.js";
 import moment from "moment";
-import fs from "fs";
-import { productValidationSchema } from "../utils/validations/product-validation.js";
+import { productValidationSchema } from "../validations/product-validation.js";
 import ResponseHandler from "../handlers/response-handling.js";
 import { validationError, notFoundError } from "../handlers/error-handling.js";
 
@@ -46,6 +47,7 @@ export const createProduct = async (req, res, next) => {
     const { name, category, description, price, quantity } = req.body;
 
     const { error } = productValidationSchema.validate(req.body);
+
     if (error) {
       return validationError(res, { message: error.details[0].message });
     }

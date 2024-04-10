@@ -44,6 +44,7 @@ export const deleteUser = async (req, res, next) => {
   try {
     const { userInfo } = req;
     const { id } = req.params;
+
     if (userInfo.role === "admin" || userInfo.id === id) {
       await User.findOneAndDelete({ _id: id });
     } else {
