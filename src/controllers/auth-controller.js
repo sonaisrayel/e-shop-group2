@@ -85,7 +85,7 @@ export const login = async (req, res, next) => {
     });
 
     return ResponseHandler.handlePostResponse(res, {
-      user: { username: userParams.username, email: userParams.email },
+      user: { username: userParams.username, email: userParams.email,role:userParams.role },
       token,
     });
   } catch (e) {

@@ -6,7 +6,7 @@ import {
   getOrders,
   getUserOrders,
   getUserOrder,
-  } from "../controllers/order-controller.js";
+} from "../controllers/order-controller.js";
 
 router.post("/", createOrderFromBucket);
 router.get("/user", getUserOrders);
