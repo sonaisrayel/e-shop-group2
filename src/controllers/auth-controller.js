@@ -2,7 +2,7 @@ import { User } from "../models/user-model.js";
 import { userValidationSchema } from "../validations/user-validation.js";
 import { passwordValidationSchema } from "../validations/password-validation.js";
 import ResponseHandler from "../handlers/response-handling.js";
-import { notFoundError, validationError } from "../handlers/error-handling.js";
+import {  validationError } from "../handlers/error-handling.js";
 import { Favourites } from "../models/favourites-model.js";
 import { Bucket } from "../models/bucket-model.js";
 
@@ -67,7 +67,8 @@ export const login = async (req, res, next) => {
     const userInfo = await User.find({ email });
 
     const [userParams] = userInfo;
-    if (typeof userParams === "undefined") {
+
+    if(!userParams){
       return validationError(res, "You are not registered");
     }
 
