@@ -7,4 +7,11 @@ export const userValidationSchema = Joi.object({
   email: Joi.string().email(),
   password: Joi.string().pattern(new RegExp("^[a-zA-Z0-9]{3,30}$")),
   repeatPassword: Joi.string().pattern(new RegExp("^[a-zA-Z0-9]{3,30}$")),
+  address: Joi.object({
+    street: Joi.string().required(),
+    city: Joi.string().required(),
+    region: Joi.string().required(),
+    postalCode: Joi.string().required(),
+    country: Joi.string().required(),
+  }),
 }).with("password", "repeatPassword");

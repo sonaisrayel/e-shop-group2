@@ -2,7 +2,7 @@ import { User } from "../models/user-model.js";
 import { userValidationSchema } from "../validations/user-validation.js";
 import { passwordValidationSchema } from "../validations/password-validation.js";
 import ResponseHandler from "../handlers/response-handling.js";
-import {  validationError } from "../handlers/error-handling.js";
+import { validationError } from "../handlers/error-handling.js";
 import { Favourites } from "../models/favourites-model.js";
 import { Bucket } from "../models/bucket-model.js";
 
@@ -11,8 +11,16 @@ import JWTLib from "../libs/jwt-lib.js";
 
 export const registration = async (req, res, next) => {
   try {
-    const { name, surname, username, password, repeatPassword, email, role } =
-      req.body;
+    const {
+      name,
+      surname,
+      username,
+      password,
+      repeatPassword,
+      email,
+      role,
+      address: { street, city, region, postalCode, country },
+    } = req.body;
 
     await passwordValidationSchema.validateAsync({ password, repeatPassword });
     await userValidationSchema.validateAsync({
@@ -22,6 +30,7 @@ export const registration = async (req, res, next) => {
       password,
       repeatPassword,
       email,
+      address: { street, city, region, postalCode, country },
     });
 
     const passwordHash = await CryptoLib.makeHash(password);
@@ -33,6 +42,7 @@ export const registration = async (req, res, next) => {
       password: passwordHash,
       email,
       role,
+      address: { street, city, region, postalCode, country },
     });
 
     await newUser.save();
@@ -68,7 +78,7 @@ export const login = async (req, res, next) => {
 
     const [userParams] = userInfo;
 
-    if(!userParams){
+    if (!userParams) {
       return validationError(res, "You are not registered");
     }
 
@@ -86,7 +96,11 @@ export const login = async (req, res, next) => {
     });
 
     return ResponseHandler.handlePostResponse(res, {
-      user: { username: userParams.username, email: userParams.email,role:userParams.role },
+      user: {
+        username: userParams.username,
+        email: userParams.email,
+        role: userParams.role,
+      },
       token,
     });
   } catch (e) {

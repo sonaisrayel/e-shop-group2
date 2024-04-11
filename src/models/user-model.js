@@ -32,6 +32,28 @@ const userSchema = new Schema({
     required: true,
     default: "buyer",
   },
+  address: {
+    street: {
+      type: String,
+      required: true,
+    },
+    city: {
+      type: String,
+      required: true,
+    },
+    region: {
+      type: String,
+      required: true,
+    },
+    postalCode: {
+      type: String,
+      required: true,
+    },
+    country: {
+      type: String,
+      required: true,
+    },
+  },
   createdAt: {
     type: Date,
     default: new Date(),
