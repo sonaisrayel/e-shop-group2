@@ -1,3 +1,4 @@
+import HttpStatusCodes from 'http-status-codes';
 import JWTLib from "../libs/jwt-lib.js";
 import { validationError } from "../handlers/error-handling.js";
 
@@ -8,7 +9,7 @@ export default class Authorize {
       req.userInfo = await JWTLib.verifyUserToken(authorization);
       next();
     } catch (e) {
-      res.status(401).send({ message: e.message });
+      res.status(HttpStatusCodes.UNAUTHORIZED).send({ message: e.message });
     }
   }
 
