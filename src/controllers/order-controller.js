@@ -39,6 +39,55 @@ export const createOrderFromBucket = async (req, res) => {
   }
 };
 
+// export const createSelectedOrder = async (req, res) => {
+//   try {
+//     const userInfo = req.userInfo;
+
+//     // Retrieve selected product IDs from request body
+//     const selectedProducts = req.body.items
+
+//     // Find the user's bucket
+//     let bucket = await Bucket.findOne({ userId: userInfo.id });
+//     if (!bucket) {
+//       return res.status(404).send({ error: "Bucket not found" });
+//     }
+
+//     // Filter out selected products from bucket items
+//     const selectedItems = bucket.items.filter(item => selectedProducts.includes(item.productId.toString()));
+
+//     // Calculate total price of selected items
+//     const totalPrice = await getTotalPrice(selectedItems);
+
+//     // Create order for selected items
+//     const order = new Order({
+//       userId: userInfo.id,
+//       items: selectedItems,
+//       totalPrice,
+//     });
+
+//     // Save order to database
+//     await order.save();
+
+//     // Remove selected items from bucket
+//     bucket.items = bucket.items.filter(item => !selectedProducts.includes(item.productId.toString()));
+
+//     // Update total price of bucket items
+//     bucket.totalPrice = await getTotalPrice(bucket.items);
+
+//     // Save updated bucket
+//     await bucket.save();
+
+//     // Respond with success message and order details
+//     return ResponseHandler.handlePostResponse(res, {
+//       message: "Order created successfully",
+//       order
+//     });
+
+//   } catch (error) {
+//     res.status(400).send({ message: error.message });
+//   }
+// }
+
 export const getUserOrders = async (req, res) => {
   try {
     const userInfo = req.userInfo;

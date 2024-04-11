@@ -12,21 +12,19 @@ export const addToBucket = async (req, res) => {
 
     if (!product) {
       res.status(404).send({ error: "Product not found" });
+      return;
     }
 
     let bucket = await Bucket.findOne({ userId: userInfo.id }); //???
-
     if (!bucket) {
       bucket = new Bucket({
         userId: userInfo.id,
         items: [{ productId, quantity }],
-        totalPrice: await getTotalPrice(bucket.items),
       });
 
       await bucket.save();
-      res.status(201).send(bucket);
     }
-
+    
     const existPrduct = bucket.items.find(
       (item) => String(item.productId) === String(productId),
     );
@@ -47,7 +45,7 @@ export const addToBucket = async (req, res) => {
     }
 
     bucket.totalPrice = await getTotalPrice(bucket.items);
-
+  
     await bucket.save();
 
     return ResponseHandler.handlePostResponse(res, {
@@ -67,6 +65,7 @@ export const getUserBucket = async (req, res) => {
 
     if (!bucket) {
       res.status(404).send({ error: "Bucket not found" });
+      return;
     }
 
     return ResponseHandler.handleGetResponse(res, bucket);
@@ -75,7 +74,7 @@ export const getUserBucket = async (req, res) => {
   }
 };
 
-export const deleteFromBucket = async (req, res) => {
+export const deleteFromBucket = async (req, res, next) => {
   try {
     const userInfo = req.userInfo;
 
@@ -85,6 +84,7 @@ export const deleteFromBucket = async (req, res) => {
 
     if (!bucket) {
       res.status(404).send({ error: "Bucket not found" });
+      return;
     }
 
     const existItem = bucket.items.find(
@@ -94,8 +94,9 @@ export const deleteFromBucket = async (req, res) => {
     if (!existItem) {
       return res.status(404).send({ error: "Product not found in bucket" });
     }
-
-    bucket.items.splice(existItem, 1);
+    console.log(bucket.items);
+    console.log(existItem);
+    bucket.items.splice(bucket.items.indexOf(existItem), 1);
 
     bucket.totalPrice = await getTotalPrice(bucket.items);
 
