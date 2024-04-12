@@ -1,31 +1,27 @@
 import { Product } from "../models/product-model.js";
 import { Bucket } from "../models/bucket-model.js";
+import { User } from "../models/user-model.js";
 import { getTotalPrice } from "../helpers/utils.js";
 import ResponseHandler from "../handlers/response-handling.js";
+import { notFoundError } from "../handlers/error-handling.js";
 
-export const addToBucket = async (req, res) => {
+
+export const addToBucket = async (req, res, next) => {
   try {
     const userInfo = req.userInfo;
 
     const { productId, quantity } = req.body;
     const product = await Product.findOne({ _id: productId });
+    const price = product.price;
 
     if (!product) {
-      res.status(404).send({ error: "Product not found" });
+      return notFoundError(res, {
+        message: "Product not found",
+      })
+
     }
 
-    let bucket = await Bucket.findOne({ userId: userInfo.id }); //???
-
-    if (!bucket) {
-      bucket = new Bucket({
-        userId: userInfo.id,
-        items: [{ productId, quantity }],
-        totalPrice: await getTotalPrice(bucket.items),
-      });
-
-      await bucket.save();
-      res.status(201).send(bucket);
-    }
+    const bucket = await Bucket.findOne({ userId: userInfo.id });
 
     const existPrduct = bucket.items.find(
       (item) => String(item.productId) === String(productId),
@@ -36,14 +32,15 @@ export const addToBucket = async (req, res) => {
         (item) => String(item.productId) === String(productId),
       ).quantity = quantity;
     } else {
-      bucket.items.push({ productId, quantity });
+      bucket.items.push({ productId, quantity, price });
     }
 
-    if (product.quantity < req.body.quantity) {
-      res
-        .status(400)
-        .send({ error: "The mentioned quantity is not available" });
-      return;
+    if (product.quantity < quantity) {
+
+      return notFoundError(res, {
+        message: "The mentioned quantity is not available",
+      })
+
     }
 
     bucket.totalPrice = await getTotalPrice(bucket.items);
@@ -54,56 +51,74 @@ export const addToBucket = async (req, res) => {
       message: "The item is added to the bucket",
       bucket,
     });
+
   } catch (error) {
     next(error.message);
   }
 };
 
-export const getUserBucket = async (req, res) => {
+export const getUserBucket = async (req, res, next) => {
   try {
     const userInfo = req.userInfo;
 
-    let bucket = await Bucket.findOne({ userId: userInfo.id }); //???
+    const bucket = await Bucket.findOne({ userId: userInfo.id });
 
     if (!bucket) {
-      res.status(404).send({ error: "Bucket not found" });
-    }
 
+      return notFoundError(res, {
+        message: "Bucket not found"
+      })
+    }
     return ResponseHandler.handleGetResponse(res, bucket);
   } catch (error) {
     next(error.message);
   }
-};
+}
 
-export const deleteFromBucket = async (req, res) => {
+
+export const deleteFromBucket = async (req, res, next) => {
   try {
     const userInfo = req.userInfo;
 
     const { productId } = req.body;
 
-    let bucket = await Bucket.findOne({ userId: userInfo.id });
+    const bucket = await Bucket.findOne({ userId: userInfo.id });
 
+    const savedProducts=bucket.items
+   
     if (!bucket) {
-      res.status(404).send({ error: "Bucket not found" });
+      return notFoundError(res, {
+        message: "Bucket not found"
+      })
     }
 
-    const existItem = bucket.items.find(
+    const existItem = savedProducts.find(
       (item) => String(item.productId) === String(productId),
     );
 
+      const existItemIndex = savedProducts.findIndex(
+      (item) => String(item.productId) === String(productId),
+    );
+
+ 
     if (!existItem) {
-      return res.status(404).send({ error: "Product not found in bucket" });
+      return notFoundError(res, {
+        message: "Product not found in the bucket" 
+      });
     }
 
-    bucket.items.splice(existItem, 1);
+    savedProducts.splice(existItemIndex, 1);
 
     bucket.totalPrice = await getTotalPrice(bucket.items);
 
     await bucket.save();
-
+    
     return ResponseHandler.handleDeleteResponse(
-      res,
-      "Product removed from bucket successfully",
+      res, {
+        message: "Product removed from bucket successfully",
+        bucket
+      } 
+      
     );
   } catch (error) {
     next(error.message);

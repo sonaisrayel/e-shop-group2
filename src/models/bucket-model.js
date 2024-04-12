@@ -15,6 +15,10 @@ const bucketSchema = new Schema({
         ref: "Product",
         required: true,
       },
+      price: {
+        type: Number,
+        required: true,
+      },
       quantity: {
         type: Number,
         required: true,
