@@ -1,4 +1,4 @@
-import HttpStatusCodes from 'http-status-codes';
+import HttpStatusCodes from "http-status-codes";
 
 export const notFoundError = (res, message) => {
   res.status(HttpStatusCodes.NOT_FOUND).send(message);

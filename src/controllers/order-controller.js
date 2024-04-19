@@ -9,40 +9,48 @@ import { notFoundError } from "../handlers/error-handling.js";
 
 export const createOrder = async (req, res, next) => {
   try {
+
     const userInfo = req.userInfo;
     const { selectedProducts, paymentMethod } = req.body;
 
     const bucket = await Bucket.findOne({ userId: userInfo.id });
 
+    // TODO - check if user type is buyer
     if (!bucket) {
       return notFoundError(res, {
         message: "Bucket not found",
       });
     }
 
+
     const selectedItems = [];
     const remainingItems = [];
-    for (const item of bucket.items) {
-      if (selectedProducts.includes(String(item.productId))) {
-        const product = await Product.findOne({ _id: item.productId }).select(
-          "name price ownerId",
-        );
 
-        if (product) {
-          const testobject = {};
-          testobject.name = product.name;
-          testobject.price = product.price;
-          testobject.quantity = item.quantity;
-          testobject._id = item._id;
-          testobject.productId = item.productId;
-          testobject.ownerId = product.ownerId;
+    const productsId = selectedProducts.map(product => product.productId);
 
-          selectedItems.push(testobject);
-        }
-      } else {
-        remainingItems.push(item);
-      }
+    const productsHash = {};
+
+    selectedProducts.forEach(({productId,quantity}) => {
+      productsHash[productId] = quantity
+    })
+
+    const products = await Product.find({ _id: { $in: productsId } });
+
+    if (!products.length) {
+      return notFoundError(res, {
+        message: "Product not found",
+      });
     }
+
+    products.forEach((product) => {
+      const { name, price, _id,  ownerId } = product;
+
+      selectedItems.push({ name, price, productId:_id, quantity:productsHash[_id], ownerId });
+      remainingItems.push(
+          ... bucket.items.filter((item) => item.products !== _id),
+      );
+
+    });
 
     const totalPriceBucket = await getTotalPrice(remainingItems);
     bucket.items = remainingItems;
@@ -51,10 +59,10 @@ export const createOrder = async (req, res, next) => {
 
     const totalPrice = await getTotalPrice(selectedItems);
 
-    const user = await User.findOne({ _id: userInfo.id });
-    if (!user) {
+    const buyerInfo = await User.findOne({ _id: userInfo.id });
+    if (!buyerInfo) {
       return notFoundError(res, {
-        message: "User not found",
+        message: "Buyer info not found",
       });
     }
 
@@ -62,9 +70,11 @@ export const createOrder = async (req, res, next) => {
       userId: userInfo.id,
       items: selectedItems,
       totalPrice,
-      address: user.address,
+      address: buyerInfo.address,
       paymentMethod,
     });
+
+    // TODO - WRITE PAYMENT LOGIC
 
     await order.save();
     return ResponseHandler.handlePostResponse(res, {
@@ -90,7 +100,7 @@ export const getUserOrders = async (req, res, next) => {
 
 export const getUserOrderById = async (req, res, next) => {
   try {
-    const userInfo = req.userInfo;
+    // const userInfo = req.userInfo;
     const { id } = req.params;
 
     const userOrder = await Order.findOne({ _id: id });

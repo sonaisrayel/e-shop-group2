@@ -54,8 +54,8 @@ const userSchema = new Schema({
       required: true,
     },
   },
-  pictureUrl:{
-    type:String,
+  pictureUrl: {
+    type: String,
   },
   createdAt: {
     type: Date,
