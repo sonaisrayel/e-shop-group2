@@ -1,44 +1,82 @@
 import { Order } from "../models/order-model.js";
 import { Bucket } from "../models/bucket-model.js";
+import { User } from "../models/user-model.js";
+import { Product } from "../models/product-model.js";
 
 import { getTotalPrice } from "../helpers/utils.js";
 import ResponseHandler from "../handlers/response-handling.js";
+import { notFoundError } from "../handlers/error-handling.js";
 
-export const createOrderFromBucket = async (req, res) => {
+export const createOrder = async (req, res, next) => {
   try {
     const userInfo = req.userInfo;
+    const { selectedProducts, paymentMethod } = req.body;
 
     const bucket = await Bucket.findOne({ userId: userInfo.id });
 
-    if (!bucket || !bucket.items.length) {
-      return res.status(400).send({ error: "Bucket is empty" });
+    if (!bucket) {
+      return notFoundError(res, {
+        message: "Bucket not found",
+      });
     }
 
-    const totalPrice = await getTotalPrice(bucket.items);
+    const selectedItems = [];
+    const remainingItems = [];
+    for (const item of bucket.items) {
+      if (selectedProducts.includes(String(item.productId))) {
+        const product = await Product.findOne({ _id: item.productId }).select(
+          "name price ownerId",
+        );
+
+        if (product) {
+          const testobject = {};
+          testobject.name = product.name;
+          testobject.price = product.price;
+          testobject.quantity = item.quantity;
+          testobject._id = item._id;
+          testobject.productId = item.productId;
+          testobject.ownerId = product.ownerId;
+
+          selectedItems.push(testobject);
+        }
+      } else {
+        remainingItems.push(item);
+      }
+    }
+
+    const totalPriceBucket = await getTotalPrice(remainingItems);
+    bucket.items = remainingItems;
+    bucket.totalPrice = totalPriceBucket;
+    await bucket.save();
+
+    const totalPrice = await getTotalPrice(selectedItems);
+
+    const user = await User.findOne({ _id: userInfo.id });
+    if (!user) {
+      return notFoundError(res, {
+        message: "User not found",
+      });
+    }
 
     const order = new Order({
       userId: userInfo.id,
-      items: bucket.items,
+      items: selectedItems,
       totalPrice,
+      address: user.address,
+      paymentMethod,
     });
 
     await order.save();
-
-    await Bucket.findOneAndUpdate(
-      { userId: userInfo.id },
-      { items: [], totalPrice: 0 },
-    );
-
     return ResponseHandler.handlePostResponse(res, {
-      message: "Order placed successfully",
+      message: "Order created successfully",
       order,
     });
   } catch (error) {
-    next(error.message);
+    next(error);
   }
 };
 
-export const getUserOrders = async (req, res) => {
+export const getUserOrders = async (req, res, next) => {
   try {
     const userInfo = req.userInfo;
 
@@ -50,7 +88,7 @@ export const getUserOrders = async (req, res) => {
   }
 };
 
-export const getUserOrder = async (req, res) => {
+export const getUserOrderById = async (req, res, next) => {
   try {
     const userInfo = req.userInfo;
     const { id } = req.params;
@@ -62,12 +100,23 @@ export const getUserOrder = async (req, res) => {
   }
 };
 
-export const getOrders = async (req, res) => {
+export const updateOrderStatus = async (req, res, next) => {
   try {
-    const orders = await Order.find({});
+    const { orderId, newStatus } = req.body;
 
-    res.status(200).send(orders);
+    const updatedOrder = await Order.findOneAndUpdate(
+      { _id: orderId },
+      { status: newStatus },
+      { new: true },
+    );
+
+    if (!updatedOrder) {
+      return notFoundError(res, {
+        message: "Order not found",
+      });
+    }
+    return ResponseHandler.handleUpdateResponse(res, updatedOrder);
   } catch (error) {
-    res.status(404).send({ error: "Something went wrong" });
+    next(error.message);
   }
 };
