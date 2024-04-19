@@ -7,8 +7,8 @@ import {
   deleteFromBucket,
 } from "../controllers/bucket-controller.js";
 
-router.post("/add", addToBucket);
+router.post("/", addToBucket);
 router.get("/", getUserBucket);
-router.delete("/delete", deleteFromBucket);
+router.delete("/", deleteFromBucket);
 
 export default router;
