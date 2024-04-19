@@ -1,4 +1,4 @@
-import HttpStatusCodes from 'http-status-codes';
+import HttpStatusCodes from "http-status-codes";
 import JWTLib from "../libs/jwt-lib.js";
 import { validationError } from "../handlers/error-handling.js";
 
