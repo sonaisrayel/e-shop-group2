@@ -1,46 +1,55 @@
 import { Category } from "../models/category-model.js";
+import ResponseHandler from "../handlers/response-handling.js";
+import { notFoundError } from "../handlers/error-handling.js";
 
-export const createCategory = async (req, res) => {
+export const createCategory = async (req, res, next) => {
   try {
     const { title } = req.body;
     const newCategory = new Category({ title });
     const category = await newCategory.save();
-    res.status(201).send({ category, massage: "Successfully created" });
+    return ResponseHandler.handlePostResponse(res, {
+      message: "Successfully created",
+      category,
+    });
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    next(error.message);
   }
 };
 
-export const getCategories = async (req, res) => {
+export const getCategories = async (req, res, next) => {
   try {
     const categories = await Category.find({});
 
     if (!categories.length) {
-      throw new Error("No categories found!!!");
+      return notFoundError(res, {
+        message: "No categories found!!!",
+      });
     } else {
-      return res.status(200).send({ categories });
+      return ResponseHandler.handleGetResponse(res, categories);
     }
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    next(error.message);
   }
 };
 
-export const deleteCategory = async (req, res) => {
+export const deleteCategory = async (req, res, next) => {
   try {
     const { title } = req.body;
     const del = await Category.deleteOne({ title });
-    return res.status(200).send({ message: "deleted successfully" });
+    return ResponseHandler.handleDeleteResponse(res, {
+      message: "deleted successfully",
+    });
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    next(error.message);
   }
 };
 
-export const getCategory = async (req, res) => {
+export const getCategory = async (req, res, next) => {
   try {
     const { id } = req.params;
     const category = await Category.find({ _id: id });
-    return res.status(200).send(category);
+    return ResponseHandler.handleGetResponse(res, category);
   } catch (error) {
-    res.status(404).send({ message: error.message });
+    next(error.message);
   }
 };
