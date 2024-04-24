@@ -4,41 +4,40 @@ const { secretKey } = process.env;
 
 class StripeLib {
   constructor() {
-    this.stripe = new Stripe(secretKey, { apiVersion: "2024-04-10" });
+    this.stripe = new Stripe(secretKey, { apiVersion: "2020-03-02" });
   }
 
   async createCustomer(payload) {
     try {
-      const { email, name, phone, taxExempt, shipping } = payload;
+      const { email } = payload;
       return await this.stripe.customers.create({
         email,
-        name,
-        phone,
-        shipping,
-        tex_exempt: taxExempt,
+
       });
     } catch (error) {
+      console.log("error in stripe")
       throw new Error(error.message);
     }
   }
 
   async createPaymentMethod(payload) {
-    try {
+
       const { card, billingDetails, type, customerId } = payload;
+
       const createdCard = await this.stripe.paymentMethods.create({
         card,
         type,
         billing_details: billingDetails,
       });
 
+
+      console.log(createdCard,'createdCard')
       await this.stripe.paymentMethods.attach(createdCard.id, {
         customer: customerId,
       });
 
       return createdCard;
-    } catch (error) {
-      throw new Error(error.message);
-    }
+
   }
 
   async updatePaymentMethod(payload) {

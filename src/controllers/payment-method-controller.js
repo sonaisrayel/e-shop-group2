@@ -5,8 +5,8 @@ import StripeLib from "../libs/stripe-lib.js";
 
 export const createPaymentMethod = async (req, res, next) => {
   try {
-    const { card, type, shipping } = req.body;
-    const userId = req.userInfo._id;
+    const { card,type,shipping } = req.body;
+    const userId = req.userInfo.id;
     let { isDefaultMethod } = req.body;
 
     const user = await User.findOne({ _id: userId });
@@ -14,22 +14,22 @@ export const createPaymentMethod = async (req, res, next) => {
     if (!user.paymentCustomerId) {
       const customer = await StripeLib.createCustomer({
         email: user.email,
-        name: `${user.username}`,
-        phone: user.phone,
-        taxExempt: "exempt",
-        shipping,
       });
 
       user.paymentCustomerId = customer.id;
-      await user.save();
+      await user.save()
     }
 
-    if (shipping) {
-      user.shippingAddress = shipping;
-      await user.save();
+    if (!shipping) {
+      user.shippingAddress = user.address;
+    } else {
+      user.shippingAddress = shipping
     }
+
+    await user.save();
 
     const customerId = user.paymentCustomerId;
+
 
     const paymentMethod = await StripeLib.createPaymentMethod({
       card,
@@ -40,13 +40,12 @@ export const createPaymentMethod = async (req, res, next) => {
           line1: user.address.street,
           city: user.address.city,
           country: user.address.country,
-          postal_code: user.address.zipCode,
         },
-        name: `${user.username} ${user.lastName}`,
-        phone: user.mobilePhone,
+        name: user.name,
         email: user.email,
       },
     });
+
 
     const methodId = paymentMethod.id;
     const hasDefaultCard = await Payment.exists({
@@ -67,7 +66,7 @@ export const createPaymentMethod = async (req, res, next) => {
       isDefault: isDefaultMethod,
     });
 
-    res.status(201).send({ paymentMethod: paymentMethodDoc });
+    res.status(201).send({ "message": paymentMethodDoc });
   } catch (error) {
     return next(error);
   }

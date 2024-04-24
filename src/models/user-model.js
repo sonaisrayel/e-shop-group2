@@ -57,6 +57,9 @@ const userSchema = new Schema({
   pictureUrl: {
     type: String,
   },
+  paymentCustomerId:{
+    type:String
+  },
   createdAt: {
     type: Date,
     default: new Date(),
