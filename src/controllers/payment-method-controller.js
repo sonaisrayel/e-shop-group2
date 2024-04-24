@@ -30,7 +30,6 @@ export const createPaymentMethod = async (req, res, next) => {
 
     const customerId = user.paymentCustomerId;
 
-
     const paymentMethod = await StripeLib.createPaymentMethod({
       card,
       type,
@@ -45,6 +44,8 @@ export const createPaymentMethod = async (req, res, next) => {
         email: user.email,
       },
     });
+
+    console.log(paymentMethod,'paymentMethod')
 
 
     const methodId = paymentMethod.id;

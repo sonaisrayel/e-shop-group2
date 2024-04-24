@@ -30,8 +30,6 @@ class StripeLib {
         billing_details: billingDetails,
       });
 
-
-      console.log(createdCard,'createdCard')
       await this.stripe.paymentMethods.attach(createdCard.id, {
         customer: customerId,
       });
