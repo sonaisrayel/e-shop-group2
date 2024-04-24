@@ -40,8 +40,6 @@ export const createOrder = async (req, res, next) => {
       productsHash[productId] = quantity;
     });
 
-    console.log(selectedProducts.quantity, "qu");
-
     const products = await Product.find({
       _id: { $in: selectedProductIds },
     }).select("name price ownerId");
