@@ -5,66 +5,73 @@ import { Product } from "../models/product-model.js";
 
 import { getTotalPrice } from "../helpers/utils.js";
 import ResponseHandler from "../handlers/response-handling.js";
-import { notFoundError } from "../handlers/error-handling.js";
+import { notFoundError, validationError } from "../handlers/error-handling.js";
 
 export const createOrder = async (req, res, next) => {
   try {
-
     const userInfo = req.userInfo;
+
     const { selectedProducts, paymentMethod } = req.body;
 
     const bucket = await Bucket.findOne({ userId: userInfo.id });
 
-    // TODO - check if user type is buyer
     if (!bucket) {
-      return notFoundError(res, {
-        message: "Bucket not found",
+      return notFoundError(res, { message: "Bucket not found" });
+    }
+
+    const buyerInfo = await User.findOne({ _id: userInfo.id });
+    if (!buyerInfo) {
+      return notFoundError(res, { message: "Buyer info not found" });
+    }
+
+    if (buyerInfo.role !== "buyer") {
+      return validationError(res, {
+        message: "You are not registered as buyer",
       });
     }
 
+    const selectedProductIds = selectedProducts.map(
+      (product) => product.productId,
+    );
+
+    const productsHash = {};
+
+    selectedProducts.forEach(({ productId, quantity }) => {
+      productsHash[productId] = quantity;
+    });
+
+    console.log(selectedProducts.quantity, "qu");
+
+    const products = await Product.find({
+      _id: { $in: selectedProductIds },
+    }).select("name price ownerId");
 
     const selectedItems = [];
     const remainingItems = [];
 
-    const productsId = selectedProducts.map(product => product.productId);
-
-    const productsHash = {};
-
-    selectedProducts.forEach(({productId,quantity}) => {
-      productsHash[productId] = quantity
-    })
-
-    const products = await Product.find({ _id: { $in: productsId } });
-
-    if (!products.length) {
-      return notFoundError(res, {
-        message: "Product not found",
+    products.forEach((item) => {
+      selectedItems.push({
+        name: item.name,
+        price: item.price,
+        productId: item._id,
+        quantity: productsHash[item._id],
+        ownerId: item.ownerId,
       });
-    }
+    });
 
-    products.forEach((product) => {
-      const { name, price, _id,  ownerId } = product;
-
-      selectedItems.push({ name, price, productId:_id, quantity:productsHash[_id], ownerId });
-      remainingItems.push(
-          ... bucket.items.filter((item) => item.products !== _id),
-      );
-
+    bucket.items.forEach((item) => {
+      if (!selectedProductIds.includes(String(item.productId))) {
+        remainingItems.push(item);
+      }
     });
 
     const totalPriceBucket = await getTotalPrice(remainingItems);
+
     bucket.items = remainingItems;
     bucket.totalPrice = totalPriceBucket;
     await bucket.save();
 
     const totalPrice = await getTotalPrice(selectedItems);
-
-    const buyerInfo = await User.findOne({ _id: userInfo.id });
-    if (!buyerInfo) {
-      return notFoundError(res, {
-        message: "Buyer info not found",
-      });
-    }
 
     const order = new Order({
       userId: userInfo.id,
@@ -74,9 +81,8 @@ export const createOrder = async (req, res, next) => {
       paymentMethod,
     });
 
-    // TODO - WRITE PAYMENT LOGIC
-
     await order.save();
+
     return ResponseHandler.handlePostResponse(res, {
       message: "Order created successfully",
       order,
@@ -100,7 +106,7 @@ export const getUserOrders = async (req, res, next) => {
 
 export const getUserOrderById = async (req, res, next) => {
   try {
-    // const userInfo = req.userInfo;
+    const userInfo = req.userInfo;
     const { id } = req.params;
 
     const userOrder = await Order.findOne({ _id: id });

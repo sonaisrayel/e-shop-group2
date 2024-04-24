@@ -1,5 +1,6 @@
 import { Router } from "express";
 const router = Router();
+import Authorize from "../middlewars/auth-middleware.js";
 
 import {
   createCategory,
@@ -7,6 +8,8 @@ import {
   deleteCategory,
   getCategory,
 } from "../controllers/category-controller.js";
+
+router.use(Authorize.isAdmin);
 
 router.post("/", createCategory);
 router.get("/:id", getCategories);
