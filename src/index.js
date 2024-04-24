@@ -19,6 +19,7 @@ import favouritesRouter from "./routes/favourites-router.js";
 import ordersRouter from "../src/routes/order-router.js";
 import productsRouter from "../src/routes/product-router.js";
 import usersRouter from "../src/routes/user-router.js";
+import paymentRouter from "../src/routes/payment-router.js";
 
 app.use(express.json());
 
@@ -34,6 +35,7 @@ app.use(Authorize.authorized);
 app.use("/bucket", bucketsRouter);
 app.use("/favourites", favouritesRouter);
 app.use("/orders", ordersRouter);
+app.use("/payment", paymentRouter);
 
 app.use(customError);
 

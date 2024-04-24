@@ -6,6 +6,8 @@ import { Product } from "../models/product-model.js";
 import { getTotalPrice } from "../helpers/utils.js";
 import ResponseHandler from "../handlers/response-handling.js";
 import { notFoundError } from "../handlers/error-handling.js";
+import  StripeLib  from '../libs/stripe-lib.js';
+
 
 export const createOrder = async (req, res, next) => {
   try {
@@ -75,6 +77,14 @@ export const createOrder = async (req, res, next) => {
     });
 
     // TODO - WRITE PAYMENT LOGIC
+
+    await StripeLib.createInvoiceItem({
+      customerId: paymentCustomerId,
+      currency: stripeCurrency,
+      amount: price * quantity,
+      description: `Order ${orderId} payment invoice`,
+      metadata: { orderId },
+    });
 
     await order.save();
     return ResponseHandler.handlePostResponse(res, {
