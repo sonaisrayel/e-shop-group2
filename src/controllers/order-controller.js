@@ -6,12 +6,10 @@ import { Product } from "../models/product-model.js";
 import { getTotalPrice } from "../helpers/utils.js";
 import ResponseHandler from "../handlers/response-handling.js";
 import { notFoundError } from "../handlers/error-handling.js";
-import  StripeLib  from '../libs/stripe-lib.js';
-
+import StripeLib from "../libs/stripe-lib.js";
 
 export const createOrder = async (req, res, next) => {
   try {
-
     const userInfo = req.userInfo;
     const { selectedProducts, paymentMethod } = req.body;
 
@@ -24,17 +22,16 @@ export const createOrder = async (req, res, next) => {
       });
     }
 
-
     const selectedItems = [];
     const remainingItems = [];
 
-    const productsId = selectedProducts.map(product => product.productId);
+    const productsId = selectedProducts.map((product) => product.productId);
 
     const productsHash = {};
 
-    selectedProducts.forEach(({productId,quantity}) => {
-      productsHash[productId] = quantity
-    })
+    selectedProducts.forEach(({ productId, quantity }) => {
+      productsHash[productId] = quantity;
+    });
 
     const products = await Product.find({ _id: { $in: productsId } });
 
@@ -45,13 +42,18 @@ export const createOrder = async (req, res, next) => {
     }
 
     products.forEach((product) => {
-      const { name, price, _id,  ownerId } = product;
+      const { name, price, _id, ownerId } = product;
 
-      selectedItems.push({ name, price, productId:_id, quantity:productsHash[_id], ownerId });
+      selectedItems.push({
+        name,
+        price,
+        productId: _id,
+        quantity: productsHash[_id],
+        ownerId,
+      });
       remainingItems.push(
-          ... bucket.items.filter((item) => item.products !== _id),
+        ...bucket.items.filter((item) => item.products !== _id),
       );
-
     });
 
     const totalPriceBucket = await getTotalPrice(remainingItems);
