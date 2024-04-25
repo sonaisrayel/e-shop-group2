@@ -57,9 +57,15 @@ const userSchema = new Schema({
   pictureUrl: {
     type: String,
   },
-  paymentCustomerId:{
-    type:String
+  paymentCustomerId: {
+    type: String,
   },
+  cards: [
+    {
+      type: Schema.Types.ObjectId,
+      ref: "Card",
+    },
+  ],
   createdAt: {
     type: Date,
     default: new Date(),
