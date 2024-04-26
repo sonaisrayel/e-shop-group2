@@ -60,12 +60,6 @@ const userSchema = new Schema({
   paymentCustomerId: {
     type: String,
   },
-  cards: [
-    {
-      type: Schema.Types.ObjectId,
-      ref: "Card",
-    },
-  ],
   createdAt: {
     type: Date,
     default: new Date(),

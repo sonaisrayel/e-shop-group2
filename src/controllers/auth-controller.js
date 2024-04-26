@@ -5,6 +5,7 @@ import ResponseHandler from "../handlers/response-handling.js";
 import { validationError } from "../handlers/error-handling.js";
 import { Favourites } from "../models/favourites-model.js";
 import { Bucket } from "../models/bucket-model.js";
+import { Card } from "../models/card-model.js";
 
 import CryptoLib from "../libs/crypto-lib.js";
 import JWTLib from "../libs/jwt-lib.js";
@@ -60,6 +61,10 @@ export const registration = async (req, res, next) => {
         Bucket.create({
           userId: user._id,
           products: [],
+        }),
+        Card.create({
+          userId: user._id,
+          cards: [],
         }),
       ]);
     }

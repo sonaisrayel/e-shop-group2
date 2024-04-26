@@ -14,6 +14,7 @@ connection();
 import adminRouter from "../src/routes/admin-router.js";
 import authRouter from "../src/routes/auth-router.js";
 import categoriesRouter from "../src/routes/category-router.js";
+import cardsRouter from "../src/routes/card-router.js";
 import bucketsRouter from "../src/routes/bucket-router.js";
 import favouritesRouter from "./routes/favourites-router.js";
 import ordersRouter from "../src/routes/order-router.js";
@@ -34,6 +35,7 @@ app.use(Authorize.authorized);
 
 app.use("/bucket", bucketsRouter);
 app.use("/favourites", favouritesRouter);
+app.use("/cards", cardsRouter);
 app.use("/orders", ordersRouter);
 app.use("/payment", paymentRouter);
 
