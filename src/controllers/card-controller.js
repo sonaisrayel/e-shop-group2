@@ -13,10 +13,8 @@ export const createCard = async (req, res, next) => {
       { $addToSet: { cards: { card: { cardNumber, expiryDate, cvv } } } },
       { new: true },
     );
-   
-    return ResponseHandler.handlePostResponse(res, { cards: createdCard });
-   
 
+    return ResponseHandler.handlePostResponse(res, { cards: createdCard });
   } catch (e) {
     next(e.message);
   }
@@ -24,11 +22,9 @@ export const createCard = async (req, res, next) => {
 
 export const getCards = async (req, res, next) => {
   try {
-   
     const userId = req.userInfo.id;
-    
 
-    const cards = await Card.find({ userId}).populate('userId', 'username email');
+    const cards = await Card.find({ userId });
     console.log(cards);
     return ResponseHandler.handleListResponse(res, {
       cards,
@@ -40,21 +36,20 @@ export const getCards = async (req, res, next) => {
 
 export const deleteCard = async (req, res, next) => {
   try {
-    
     const userId = req.userInfo.id;
-    
-    const cardId = req.params.id;
-    
-    const updatedUser = await Card.findOneAndUpdate(
-        { userId },
-        { $pull: { cards: cardId } }, 
-        { new: true } 
-      );
 
-      console.log(userId);
-      console.log(cardId);
-      console.log(updatedUser);
-    
+    const cardId = req.params.id;
+
+    const updatedUser = await Card.findOneAndUpdate(
+      { userId },
+      { $pull: { cards: { _id: cardId } } },
+      { new: true },
+    );
+
+    // console.log(userId);
+    // console.log(cardId);
+    // console.log(updatedUser);
+
     return ResponseHandler.handleDeleteResponse(res, {
       cards: updatedUser,
     });
