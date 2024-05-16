@@ -7,7 +7,6 @@ import { getTotalPrice } from "../helpers/utils.js";
 import ResponseHandler from "../handlers/response-handling.js";
 import { notFoundError, validationError } from "../handlers/error-handling.js";
 
-
 export const createOrder = async (req, res, next) => {
   try {
     const userInfo = req.userInfo;
@@ -18,24 +17,27 @@ export const createOrder = async (req, res, next) => {
       return notFoundError(res, { message: "Bucket not found" });
     }
 
-       const buyerInfo = await User.findOne({ _id: userInfo.id });
+    const buyerInfo = await User.findOne({ _id: userInfo.id });
     if (!buyerInfo || buyerInfo.role !== "buyer") {
       return validationError(res, {
         message: "Buyer info not found or not registered as buyer",
       });
     }
 
-    const selectedProductsIds = selectedProducts.map(product => product.productId);
+    const selectedProductsIds = selectedProducts.map(
+      (product) => product.productId,
+    );
 
+    const products = await Product.find({
+      _id: { $in: selectedProductsIds },
+    }).select("name price ownerId quantity");
 
-    const products = await Product.find({ _id: { $in: selectedProductsIds } })
-                                   .select("name price ownerId quantity");
+    const selectedItems = [];
 
-     const selectedItems = [];
-      
     for (const product of selectedProducts) {
-      const selectedProduct = products.find(p => p._id.toString() === product.productId);
-      
+      const selectedProduct = products.find(
+        (p) => p._id.toString() === product.productId,
+      );
 
       if (!selectedProduct || selectedProduct.quantity < product.quantity) {
         return validationError(res, {
@@ -44,20 +46,22 @@ export const createOrder = async (req, res, next) => {
       }
 
       const updatedQuantity = selectedProduct.quantity - product.quantity;
-      
+
       await Product.findOneAndUpdate(
         { _id: selectedProduct._id },
-        { quantity: updatedQuantity }
+        { quantity: updatedQuantity },
       );
-      
+
       selectedItems.push({
         ...selectedProduct,
         quantity: product.quantity,
-        productId: product.productId
+        productId: product.productId,
       });
     }
-     
-    const remainingItems = bucket.items.filter(item => !selectedProductsIds.includes(String(item.productId)));
+
+    const remainingItems = bucket.items.filter(
+      (item) => !selectedProductsIds.includes(String(item.productId)),
+    );
 
     const totalPriceBucket = await getTotalPrice(remainingItems);
 
@@ -85,8 +89,6 @@ export const createOrder = async (req, res, next) => {
     next(error);
   }
 };
-
-
 
 export const getUserOrders = async (req, res, next) => {
   try {
