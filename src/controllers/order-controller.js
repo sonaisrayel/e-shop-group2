@@ -7,61 +7,57 @@ import { getTotalPrice } from "../helpers/utils.js";
 import ResponseHandler from "../handlers/response-handling.js";
 import { notFoundError, validationError } from "../handlers/error-handling.js";
 
+
 export const createOrder = async (req, res, next) => {
   try {
     const userInfo = req.userInfo;
-
     const { selectedProducts, paymentMethod } = req.body;
 
     const bucket = await Bucket.findOne({ userId: userInfo.id });
-
     if (!bucket) {
       return notFoundError(res, { message: "Bucket not found" });
     }
 
-    const buyerInfo = await User.findOne({ _id: userInfo.id });
-    if (!buyerInfo) {
-      return notFoundError(res, { message: "Buyer info not found" });
-    }
-
-    if (buyerInfo.role !== "buyer") {
+       const buyerInfo = await User.findOne({ _id: userInfo.id });
+    if (!buyerInfo || buyerInfo.role !== "buyer") {
       return validationError(res, {
-        message: "You are not registered as buyer",
+        message: "Buyer info not found or not registered as buyer",
       });
     }
 
-    const selectedProductIds = selectedProducts.map(
-      (product) => product.productId,
-    );
+    const selectedProductsIds = selectedProducts.map(product => product.productId);
 
-    const productsHash = {};
 
-    selectedProducts.forEach(({ productId, quantity }) => {
-      productsHash[productId] = quantity;
-    });
+    const products = await Product.find({ _id: { $in: selectedProductsIds } })
+                                   .select("name price ownerId quantity");
 
-    const products = await Product.find({
-      _id: { $in: selectedProductIds },
-    }).select("name price ownerId");
+     const selectedItems = [];
+      
+    for (const product of selectedProducts) {
+      const selectedProduct = products.find(p => p._id.toString() === product.productId);
+      
 
-    const selectedItems = [];
-    const remainingItems = [];
-
-    products.forEach((item) => {
-      selectedItems.push({
-        name: item.name,
-        price: item.price,
-        productId: item._id,
-        quantity: productsHash[item._id],
-        ownerId: item.ownerId,
-      });
-    });
-
-    bucket.items.forEach((item) => {
-      if (!selectedProductIds.includes(String(item.productId))) {
-        remainingItems.push(item);
+      if (!selectedProduct || selectedProduct.quantity < product.quantity) {
+        return validationError(res, {
+          message: `Insufficient quantity available for product ${selectedProduct.name}`,
+        });
       }
-    });
+
+      const updatedQuantity = selectedProduct.quantity - product.quantity;
+      
+      await Product.findOneAndUpdate(
+        { _id: selectedProduct._id },
+        { quantity: updatedQuantity }
+      );
+      
+      selectedItems.push({
+        ...selectedProduct,
+        quantity: product.quantity,
+        productId: product.productId
+      });
+    }
+     
+    const remainingItems = bucket.items.filter(item => !selectedProductsIds.includes(String(item.productId)));
 
     const totalPriceBucket = await getTotalPrice(remainingItems);
 
@@ -89,6 +85,8 @@ export const createOrder = async (req, res, next) => {
     next(error);
   }
 };
+
+
 
 export const getUserOrders = async (req, res, next) => {
   try {
